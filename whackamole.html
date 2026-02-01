@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Whack-A-Mole Xavier | Xavier Games Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            background: linear-gradient(135deg, #0c1a2d 0%, #1a3a5f 100%);
+            color: #fff;
+        }
+        
+        body {
+            padding: 10px;
+            touch-action: manipulation;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            height: 100%;
+            max-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            width: 100%;
+            padding: 5px;
+            flex-shrink: 0;
+        }
+        
+        .header h1 {
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(255, 126, 95, 0.5);
+        }
+        
+        .header p {
+            font-size: clamp(0.8rem, 3vw, 1rem);
+            color: #a3c4f3;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.3;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(15, 37, 71, 0.95);
+            color: white;
+            border: 2px solid #2a4a7a;
+            padding: 8px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            z-index: 1000;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+            touch-action: manipulation;
+        }
+        
+        .back-btn:active {
+            transform: scale(0.95);
+            background: rgba(15, 37, 71, 1);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            background: rgba(15, 37, 71, 0.95);
+            border-radius: 12px;
+            padding: 10px;
+            border: 2px solid #2a4a7a;
+            flex-shrink: 0;
+            gap: 5px;
+        }
+        
+        .info-box {
+            text-align: center;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .info-box h3 {
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            color: #a3c4f3;
+            margin-bottom: 3px;
+            white-space: nowrap;
+        }
+        
+        .info-value {
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        
+        .info-value.critical {
+            color: #ff5252;
+            animation: pulse 0.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .game-board {
+            width: 100%;
+            flex: 1;
+            min-height: 200px;
+            background: #0f2547;
+            border-radius: 15px;
+            border: 3px solid #2a4a7a;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+            touch-action: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .moles-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 15px;
+            padding: 20px;
+            width: 100%;
+            height: 100%;
+            max-width: 500px;
+            max-height: 500px;
+        }
+        
+        .hole {
+            position: relative;
+            background: linear-gradient(135deg, #5d4037, #3e2723);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 4px solid #8d6e63;
+        }
+        
+        .hole:active {
+            transform: scale(0.95);
+        }
+        
+        .hole-inner {
+            width: 80%;
+            height: 80%;
+            background: linear-gradient(135deg, #4e342e, #2c1810);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .mole {
+            position: absolute;
+            bottom: -100%;
+            width: 80%;
+            height: 90%;
+            transition: bottom 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            cursor: pointer;
+        }
+        
+        .mole.active {
+            bottom: 0;
+        }
+        
+        .mole.hit {
+            animation: moleHit 0.3s ease-out;
+        }
+        
+        @keyframes moleHit {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.2); }
+            100% { transform: translateY(0) scale(1); }
+        }
+        
+        .mole-body {
+            width: 70%;
+            height: 70%;
+            background: #795548;
+            border-radius: 50% 50% 40% 40%;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .mole-face {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .mole-eyes {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .mole-eye {
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mole-pupil {
+            width: 8px;
+            height: 8px;
+            background: #000;
+            border-radius: 50%;
+        }
+        
+        .mole-nose {
+            width: 12px;
+            height: 8px;
+            background: #d7ccc8;
+            border-radius: 50%;
+        }
+        
+        .mole-crown {
+            position: absolute;
+            top: -15px;
+            color: #ffd700;
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            z-index: 2;
+        }
+        
+        .mole.bonus .mole-body {
+            background: #9C27B0;
+        }
+        
+        .mole.bonus .mole-crown {
+            animation: crownGlow 1s infinite;
+        }
+        
+        @keyframes crownGlow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .mole.malicious .mole-body {
+            background: #FF5252;
+        }
+        
+        .mole.malicious .mole-eyes {
+            color: #000;
+        }
+        
+        .hit-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 10;
+            animation: hitFloat 0.8s ease-out forwards;
+        }
+        
+        @keyframes hitFloat {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -100px) scale(1.5); }
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        .control-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+            touch-action: manipulation;
+            min-height: 44px;
+        }
+        
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: #0c1a2d;
+        }
+        
+        .btn-secondary {
+            background: #2a4a7a;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffcc00;
+            color: #0c1a2d;
+        }
+        
+        .tutorial {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .tutorial h3 {
+            font-size: clamp(1.5rem, 6vw, 2.2rem);
+            color: #ff7e5f;
+            margin-bottom: 15px;
+        }
+        
+        .tutorial p {
+            font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+            color: #a3c4f3;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            max-width: 500px;
+        }
+        
+        .tutorial-demo {
+            width: min(300px, 90vw);
+            height: 200px;
+            border-radius: 15px;
+            background: rgba(255, 126, 95, 0.1);
+            border: 3px solid rgba(255, 126, 95, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .demo-holes {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            grid-template-rows: repeat(3, 60px);
+            gap: 10px;
+        }
+        
+        .demo-hole {
+            background: linear-gradient(135deg, #5d4037, #3e2723);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #8d6e63;
+        }
+        
+        .demo-mole {
+            background: #795548;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            position: relative;
+        }
+        
+        .demo-mole.crown {
+            background: #9C27B0;
+        }
+        
+        .demo-mole.crown::after {
+            content: '👑';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2rem;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .game-over h2 {
+            font-size: clamp(2rem, 8vw, 3rem);
+            color: #ff7e5f;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255, 126, 95, 0.7);
+        }
+        
+        .game-over p {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+        
+        .game-over .stats {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .stat-item {
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .stat-value {
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            color: #ffcc00;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            color: #a3c4f3;
+            margin-top: 3px;
+        }
+        
+        .level-complete {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .level-complete h2 {
+            font-size: clamp(2rem, 8vw, 3rem);
+            color: #4CAF50;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.7);
+        }
+        
+        .bonus-points {
+            font-size: clamp(1.2rem, 5vw, 2rem);
+            color: #ffcc00;
+            margin: 15px 0;
+            animation: float 2s infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .timer-bar {
+            width: 90%;
+            height: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .timer-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: 100%;
+            transition: width 0.1s linear;
+        }
+        
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .combo-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: none;
+            animation: comboPop 0.5s ease-out;
+        }
+        
+        @keyframes comboPop {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .touch-feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: touchRipple 0.5s ease-out;
+        }
+        
+        @keyframes touchRipple {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+        
+        /* Landscape mode optimizations */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                height: 100vh;
+            }
+            
+            .header {
+                order: 1;
+                width: 100%;
+                padding: 5px;
+            }
+            
+            .game-info {
+                order: 2;
+                width: 100%;
+            }
+            
+            .game-board {
+                order: 3;
+                height: 60vh;
+                min-height: 250px;
+                width: 60%;
+            }
+            
+            .controls {
+                order: 4;
+                width: 40%;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .moles-grid {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .header p {
+                display: none;
+            }
+            
+            .back-btn {
+                top: 5px;
+                left: 5px;
+                padding: 5px 10px;
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Portrait mode optimizations */
+        @media (orientation: portrait) and (max-height: 700px) {
+            .moles-grid {
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .control-btn {
+                min-height: 40px;
+                padding: 10px 5px;
+            }
+            
+            .game-info {
+                padding: 8px;
+            }
+            
+            .info-value {
+                font-size: 1.3rem;
+            }
+        }
+        
+        /* Very small screens */
+        @media (max-width: 350px) {
+            .moles-grid {
+                gap: 8px;
+                padding: 8px;
+            }
+            
+            .control-btn {
+                font-size: 0.8rem;
+                min-height: 38px;
+            }
+            
+            .info-value {
+                font-size: 1rem;
+            }
+            
+            .info-box h3 {
+                font-size: 0.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.history.back()">
+        <i class="fas fa-arrow-left"></i> Back
+    </button>
+    
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-hammer"></i> Whack-A-Mole Xavier</h1>
+            <p>Tap moles as they pop up! Avoid hitting crowns for bonus points. Speed increases over time!</p>
+        </div>
+        
+        <div class="game-info">
+            <div class="info-box">
+                <h3>SCORE</h3>
+                <div class="info-value" id="scoreDisplay">0</div>
+            </div>
+            <div class="info-box">
+                <h3>LEVEL</h3>
+                <div class="info-value" id="levelDisplay">1</div>
+            </div>
+            <div class="info-box">
+                <h3>TIME</h3>
+                <div class="info-value" id="timeDisplay">60s</div>
+            </div>
+            <div class="info-box">
+                <h3>COMBO</h3>
+                <div class="info-value" id="comboDisplay">1x</div>
+            </div>
+        </div>
+        
+        <div class="game-board">
+            <div class="timer-bar" id="timerBar">
+                <div class="timer-progress" id="timerProgress"></div>
+                <div class="timer-text" id="timerText">60s</div>
+            </div>
+            
+            <div class="moles-grid" id="molesGrid">
+                <!-- Holes and moles will be generated here -->
+            </div>
+            
+            <div class="combo-display" id="comboDisplayPopup">
+                COMBO x<span id="comboValue">1</span>!
+            </div>
+            
+            <div class="tutorial" id="tutorialScreen">
+                <h3>Whack-A-Mole Tutorial</h3>
+                <div class="tutorial-demo">
+                    <div class="demo-holes">
+                        <!-- Demo holes will be created with JavaScript -->
+                    </div>
+                </div>
+                <p><strong>How to Play:</strong></p>
+                <p>1. <strong>Tap moles:</strong> As they pop up from holes</p>
+                <p>2. <strong>Crown moles:</strong> Worth extra points!</p>
+                <p>3. <strong>Malicious moles:</strong> Avoid these red ones</p>
+                <p>4. <strong>Build combos:</strong> Hit multiple in a row</p>
+                <p>5. <strong>Speed increases</strong> as time goes on!</p>
+                <button class="btn-primary control-btn" onclick="startGame()" style="margin-top: 10px;">
+                    <i class="fas fa-play"></i> Start Game
+                </button>
+            </div>
+            
+            <div class="game-over" id="gameOverScreen">
+                <h2>Game Over!</h2>
+                <p id="gameOverMessage">Time's up!</p>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="finalScore">0</div>
+                        <div class="stat-label">Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="finalLevel">1</div>
+                        <div class="stat-label">Level</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="finalMoles">0</div>
+                        <div class="stat-label">Moles Whacked</div>
+                    </div>
+                </div>
+                <button class="btn-primary control-btn" onclick="startGame()" style="margin-top: 15px;">
+                    <i class="fas fa-redo"></i> Play Again
+                </button>
+            </div>
+            
+            <div class="level-complete" id="levelCompleteScreen">
+                <h2>Level Complete!</h2>
+                <p>You survived the onslaught!</p>
+                <div class="bonus-points" id="levelBonus">+500 Bonus Points!</div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="nextLevel">2</div>
+                        <div class="stat-label">Next Level</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="accuracyBonus">0%</div>
+                        <div class="stat-label">Accuracy Bonus</div>
+                    </div>
+                </div>
+                <button class="btn-primary control-btn" onclick="nextLevel()" style="margin-top: 15px;">
+                    <i class="fas fa-arrow-right"></i> Next Level
+                </button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-secondary control-btn" onclick="pauseGame()" id="pauseBtn">
+                <i class="fas fa-pause"></i> Pause
+            </button>
+            <button class="btn-primary control-btn" id="startBtn" onclick="startGame()">
+                <i class="fas fa-play"></i> Start
+            </button>
+            <button class="btn-warning control-btn" onclick="usePowerup()" id="powerupBtn">
+                <i class="fas fa-bolt"></i> Slow Time (3)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Game Variables
+        let gameRunning = false;
+        let gamePaused = false;
+        let score = 0;
+        let level = 1;
+        let timeLeft = 60;
+        let totalTime = 60;
+        let moles = [];
+        let activeMoles = [];
+        let combo = 0;
+        let comboMultiplier = 1;
+        let maxCombo = 0;
+        let hits = 0;
+        let misses = 0;
+        let totalMoles = 0;
+        let gameTimer = null;
+        let moleSpawner = null;
+        let slowTimePowerups = 3;
+        let slowTimeActive = false;
+        let moleSpeed = 1000; // Time moles stay up (ms)
+        let spawnInterval = 800; // Time between mole spawns (ms)
+        
+        // Mole types
+        const MOLE_TYPES = [
+            { type: 'normal', color: '#795548', points: 10, spawnChance: 0.6 },
+            { type: 'crown', color: '#9C27B0', points: 50, spawnChance: 0.2 },
+            { type: 'malicious', color: '#FF5252', points: -20, spawnChance: 0.2 }
+        ];
+        
+        // Initialize Game
+        function initGame() {
+            // Show tutorial for first play
+            const hasPlayed = localStorage.getItem('whackamole_played');
+            if (!hasPlayed) {
+                document.getElementById('tutorialScreen').style.display = 'flex';
+                createTutorialDemo();
+                localStorage.setItem('whackamole_played', 'true');
+            } else {
+                // Show start button immediately
+                document.getElementById('startBtn').innerHTML = '<i class="fas fa-play"></i> Start';
+            }
+            
+            // Create holes
+            createHoles();
+            
+            // Add touch feedback
+            addTouchFeedback();
+            
+            // Load high score
+            updateHighScoreDisplay();
+        }
+        
+        // Create tutorial demo
+        function createTutorialDemo() {
+            const demoHoles = document.querySelector('.demo-holes');
+            demoHoles.innerHTML = '';
+            
+            for (let i = 0; i < 9; i++) {
+                const hole = document.createElement('div');
+                hole.className = 'demo-hole';
+                
+                // Add different mole types in demo
+                if (i === 1) {
+                    const mole = document.createElement('div');
+                    mole.className = 'demo-mole';
+                    hole.appendChild(mole);
+                } else if (i === 4) {
+                    const mole = document.createElement('div');
+                    mole.className = 'demo-mole crown';
+                    hole.appendChild(mole);
+                } else if (i === 7) {
+                    const mole = document.createElement('div');
+                    mole.className = 'demo-mole';
+                    mole.style.background = '#FF5252';
+                    hole.appendChild(mole);
+                }
+                
+                demoHoles.appendChild(hole);
+            }
+        }
+        
+        // Add touch feedback
+        function addTouchFeedback() {
+            const holes = document.querySelectorAll('.hole');
+            holes.forEach(hole => {
+                hole.addEventListener('touchstart', function(e) {
+                    const touch = e.touches[0];
+                    const rect = this.getBoundingClientRect();
+                    const x = touch.clientX - rect.left;
+                    const y = touch.clientY - rect.top;
+                    
+                    const feedback = document.createElement('div');
+                    feedback.className = 'touch-feedback';
+                    feedback.style.left = x + 'px';
+                    feedback.style.top = y + 'px';
+                    this.appendChild(feedback);
+                    
+                    setTimeout(() => {
+                        if (feedback.parentNode === this) {
+                            this.removeChild(feedback);
+                        }
+                    }, 500);
+                });
+            });
+        }
+        
+        // Create holes
+        function createHoles() {
+            const molesGrid = document.getElementById('molesGrid');
+            molesGrid.innerHTML = '';
+            moles = [];
+            
+            // Create 9 holes (3x3 grid)
+            for (let i = 0; i < 9; i++) {
+                const hole = document.createElement('div');
+                hole.className = 'hole';
+                hole.dataset.index = i;
+                
+                const holeInner = document.createElement('div');
+                holeInner.className = 'hole-inner';
+                
+                // Create mole element
+                const mole = document.createElement('div');
+                mole.className = 'mole';
+                mole.dataset.index = i;
+                
+                const moleBody = document.createElement('div');
+                moleBody.className = 'mole-body';
+                
+                const moleFace = document.createElement('div');
+                moleFace.className = 'mole-face';
+                
+                const moleEyes = document.createElement('div');
+                moleEyes.className = 'mole-eyes';
+                
+                const leftEye = document.createElement('div');
+                leftEye.className = 'mole-eye';
+                const leftPupil = document.createElement('div');
+                leftPupil.className = 'mole-pupil';
+                leftEye.appendChild(leftPupil);
+                
+                const rightEye = document.createElement('div');
+                rightEye.className = 'mole-eye';
+                const rightPupil = document.createElement('div');
+                rightPupil.className = 'mole-pupil';
+                rightEye.appendChild(rightPupil);
+                
+                moleEyes.appendChild(leftEye);
+                moleEyes.appendChild(rightEye);
+                
+                const moleNose = document.createElement('div');
+                moleNose.className = 'mole-nose';
+                
+                moleFace.appendChild(moleEyes);
+                moleFace.appendChild(moleNose);
+                
+                const moleCrown = document.createElement('div');
+                moleCrown.className = 'mole-crown';
+                moleCrown.innerHTML = '👑';
+                moleCrown.style.display = 'none';
+                
+                moleBody.appendChild(moleFace);
+                mole.appendChild(moleCrown);
+                mole.appendChild(moleBody);
+                mole.appendChild(moleCrown.cloneNode(true));
+                
+                holeInner.appendChild(mole);
+                hole.appendChild(holeInner);
+                molesGrid.appendChild(hole);
+                
+                // Add click event
+                hole.addEventListener('click', () => whackMole(i));
+                
+                // Store mole reference
+                moles.push({
+                    element: mole,
+                    body: moleBody,
+                    crown: moleCrown,
+                    active: false,
+                    type: 'normal',
+                    points: 10,
+                    index: i
+                });
+            }
+        }
+        
+        // Start game
+        function startGame() {
+            if (gameRunning) {
+                // If game is already running, restart
+                gameRunning = false;
+                clearInterval(gameTimer);
+                clearInterval(moleSpawner);
+            }
+            
+            document.getElementById('tutorialScreen').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('levelCompleteScreen').style.display = 'none';
+            
+            // Reset game state
+            score = 0;
+            level = 1;
+            timeLeft = 60;
+            totalTime = 60;
+            combo = 0;
+            comboMultiplier = 1;
+            maxCombo = 0;
+            hits = 0;
+            misses = 0;
+            totalMoles = 0;
+            slowTimePowerups = 3;
+            slowTimeActive = false;
+            moleSpeed = 1000;
+            spawnInterval = 800;
+            activeMoles = [];
+            
+            // Update displays
+            document.getElementById('startBtn').innerHTML = '<i class="fas fa-redo"></i> Restart';
+            document.getElementById('powerupBtn').innerHTML = `<i class="fas fa-bolt"></i> Slow Time (${slowTimePowerups})`;
+            document.getElementById('comboDisplayPopup').style.display = 'none';
+            
+            // Reset all moles
+            moles.forEach(mole => {
+                mole.element.classList.remove('active', 'hit', 'bonus', 'malicious');
+                mole.body.style.background = '#795548';
+                mole.crown.style.display = 'none';
+                mole.active = false;
+            });
+            
+            // Update game info
+            updateDisplay();
+            
+            gameRunning = true;
+            gamePaused = false;
+            
+            // Start timer
+            startTimer();
+            
+            // Start mole spawner
+            startMoleSpawner();
+        }
+        
+        // Start timer
+        function startTimer() {
+            if (gameTimer) clearInterval(gameTimer);
+            
+            gameTimer = setInterval(() => {
+                if (!gamePaused && gameRunning) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    
+                    // Increase difficulty as time passes
+                    if (timeLeft % 10 === 0 && timeLeft > 0) {
+                        increaseDifficulty();
+                    }
+                    
+                    if (timeLeft <= 0) {
+                        completeLevel();
+                    }
+                }
+            }, 1000);
+        }
+        
+        // Update timer display
+        function updateTimerDisplay() {
+            document.getElementById('timeDisplay').textContent = `${timeLeft}s`;
+            
+            const progress = (timeLeft / totalTime) * 100;
+            document.getElementById('timerProgress').style.width = `${progress}%`;
+            document.getElementById('timerText').textContent = `${timeLeft}s`;
+            
+            // Change color based on time left
+            const timerBar = document.getElementById('timerProgress');
+            if (timeLeft <= 10) {
+                timerBar.style.background = 'linear-gradient(90deg, #FF5252, #FF8A80)';
+                document.getElementById('timeDisplay').classList.add('critical');
+            } else if (timeLeft <= 30) {
+                timerBar.style.background = 'linear-gradient(90deg, #FFD700, #FFEB3B)';
+                document.getElementById('timeDisplay').classList.remove('critical');
+            } else {
+                timerBar.style.background = 'linear-gradient(90deg, #4CAF50, #8BC34A)';
+                document.getElementById('timeDisplay').classList.remove('critical');
+            }
+        }
+        
+        // Start mole spawner
+        function startMoleSpawner() {
+            if (moleSpawner) clearInterval(moleSpawner);
+            
+            const currentSpeed = slowTimeActive ? spawnInterval * 1.5 : spawnInterval;
+            
+            moleSpawner = setInterval(() => {
+                if (!gamePaused && gameRunning) {
+                    spawnMole();
+                }
+            }, currentSpeed);
+        }
+        
+        // Spawn a mole
+        function spawnMole() {
+            // Find inactive holes
+            const inactiveHoles = moles.filter(mole => !mole.active && !activeMoles.includes(mole.index));
+            
+            if (inactiveHoles.length === 0) return;
+            
+            // Choose random hole
+            const randomIndex = Math.floor(Math.random() * inactiveHoles.length);
+            const mole = inactiveHoles[randomIndex];
+            
+            // Determine mole type based on probabilities
+            const rand = Math.random();
+            let cumulativeChance = 0;
+            let selectedType = MOLE_TYPES[0];
+            
+            for (const type of MOLE_TYPES) {
+                cumulativeChance += type.spawnChance;
+                if (rand < cumulativeChance) {
+                    selectedType = type;
+                    break;
+                }
+            }
+            
+            // Set mole properties
+            mole.type = selectedType.type;
+            mole.points = selectedType.points;
+            mole.body.style.background = selectedType.color;
+            
+            // Show crown for crown moles
+            mole.crown.style.display = selectedType.type === 'crown' ? 'block' : 'none';
+            
+            // Add classes for special moles
+            mole.element.classList.remove('bonus', 'malicious');
+            if (selectedType.type === 'crown') {
+                mole.element.classList.add('bonus');
+            } else if (selectedType.type === 'malicious') {
+                mole.element.classList.add('malicious');
+            }
+            
+            // Activate mole
+            mole.active = true;
+            mole.element.classList.add('active');
+            activeMoles.push(mole.index);
+            
+            // Set mole to hide after duration
+            const hideDuration = slowTimeActive ? moleSpeed * 1.5 : moleSpeed;
+            
+            setTimeout(() => {
+                if (mole.active) {
+                    hideMole(mole.index, false); // Mole disappeared naturally (miss)
+                }
+            }, hideDuration);
+            
+            totalMoles++;
+        }
+        
+        // Whack a mole
+        function whackMole(index) {
+            if (!gameRunning || gamePaused) return;
+            
+            const mole = moles[index];
+            
+            if (!mole.active) {
+                // Missed tap (no mole there)
+                misses++;
+                combo = 0;
+                comboMultiplier = 1;
+                updateComboDisplay();
+                return;
+            }
+            
+            // Hit the mole
+            hits++;
+            
+            // Add hit animation
+            mole.element.classList.add('hit');
+            
+            // Calculate points
+            let points = mole.points;
+            
+            // Apply combo multiplier
+            if (points > 0) {
+                points *= comboMultiplier;
+                combo++;
+                
+                // Increase combo multiplier
+                if (combo >= 3) comboMultiplier = 2;
+                if (combo >= 6) comboMultiplier = 3;
+                if (combo >= 10) comboMultiplier = 4;
+                
+                // Update max combo
+                if (combo > maxCombo) {
+                    maxCombo = combo;
+                }
+                
+                // Show combo popup for high combos
+                if (combo >= 3) {
+                    showComboPopup(comboMultiplier);
+                }
+            } else {
+                // Reset combo for negative points (malicious moles)
+                combo = 0;
+                comboMultiplier = 1;
+            }
+            
+            // Add score
+            score += points;
+            
+            // Create hit effect
+            createHitEffect(index, points);
+            
+            // Hide the mole
+            hideMole(index, true);
+            
+            // Update displays
+            updateDisplay();
+            updateComboDisplay();
+        }
+        
+        // Create hit effect
+        function createHitEffect(index, points) {
+            const mole = moles[index];
+            const moleRect = mole.element.getBoundingClientRect();
+            const boardRect = document.querySelector('.game-board').getBoundingClientRect();
+            
+            const effect = document.createElement('div');
+            effect.className = 'hit-effect';
+            effect.textContent = points > 0 ? `+${points}` : points;
+            effect.style.color = points > 0 ? '#4CAF50' : '#FF5252';
+            effect.style.left = `${moleRect.left - boardRect.left + moleRect.width / 2}px`;
+            effect.style.top = `${moleRect.top - boardRect.top + moleRect.height / 2}px`;
+            
+            document.querySelector('.game-board').appendChild(effect);
+            
+            // Remove effect after animation
+            setTimeout(() => {
+                if (effect.parentNode) {
+                    effect.parentNode.removeChild(effect);
+                }
+            }, 800);
+        }
+        
+        // Show combo popup
+        function showComboPopup(multiplier) {
+            const popup = document.getElementById('comboDisplayPopup');
+            document.getElementById('comboValue').textContent = multiplier;
+            
+            popup.style.display = 'block';
+            popup.style.background = multiplier >= 4 ? 'linear-gradient(135deg, #FFD700, #FF9800)' :
+                              multiplier >= 3 ? 'linear-gradient(135deg, #9C27B0, #E91E63)' :
+                              'linear-gradient(135deg, #2196F3, #03A9F4)';
+            
+            // Hide popup after delay
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 1500);
+        }
+        
+        // Hide a mole
+        function hideMole(index, wasHit) {
+            const mole = moles[index];
+            
+            if (!mole.active) return;
+            
+            mole.active = false;
+            mole.element.classList.remove('active', 'hit');
+            
+            // Remove from active moles array
+            const activeIndex = activeMoles.indexOf(index);
+            if (activeIndex !== -1) {
+                activeMoles.splice(activeIndex, 1);
+            }
+            
+            // Reset mole appearance
+            mole.body.style.background = '#795548';
+            mole.crown.style.display = 'none';
+            mole.element.classList.remove('bonus', 'malicious');
+            
+            // If mole wasn't hit and it wasn't a malicious mole, count as miss
+            if (!wasHit && mole.type !== 'malicious') {
+                misses++;
+                combo = 0;
+                comboMultiplier = 1;
+                updateComboDisplay();
+            }
+        }
+        
+        // Increase difficulty
+        function increaseDifficulty() {
+            // Make moles faster and spawn more frequently
+            moleSpeed = Math.max(300, moleSpeed - 100);
+            spawnInterval = Math.max(400, spawnInterval - 50);
+            
+            // Update spawner with new interval
+            if (moleSpawner) {
+                clearInterval(moleSpawner);
+                startMoleSpawner();
+            }
+        }
+        
+        // Use powerup (slow time)
+        function usePowerup() {
+            if (!gameRunning || gamePaused || slowTimePowerups <= 0) return;
+            
+            slowTimePowerups--;
+            document.getElementById('powerupBtn').innerHTML = `<i class="fas fa-bolt"></i> Slow Time (${slowTimePowerups})`;
+            
+            // Activate slow time
+            slowTimeActive = true;
+            
+            // Update spawner with slower speed
+            clearInterval(moleSpawner);
+            startMoleSpawner();
+            
+            // Apply visual effect
+            document.querySelectorAll('.mole.active').forEach(mole => {
+                mole.style.transitionDuration = '0.5s';
+            });
+            
+            // Deactivate slow time after 5 seconds
+            setTimeout(() => {
+                slowTimeActive = false;
+                
+                // Restore normal speed
+                clearInterval(moleSpawner);
+                startMoleSpawner();
+                
+                // Restore visual effect
+                document.querySelectorAll('.mole.active').forEach(mole => {
+                    mole.style.transitionDuration = '0.3s';
+                });
+            }, 5000);
+        }
+        
+        // Complete level
+        function completeLevel() {
+            gameRunning = false;
+            clearInterval(gameTimer);
+            clearInterval(moleSpawner);
+            
+            // Hide all active moles
+            activeMoles.forEach(index => {
+                hideMole(index, false);
+            });
+            
+            // Calculate accuracy bonus
+            const accuracy = hits + misses > 0 ? Math.round((hits / (hits + misses)) * 100) : 100;
+            const accuracyBonus = Math.floor(score * (accuracy / 100));
+            
+            // Add level bonus
+            const levelBonus = 500 * level;
+            const totalBonus = accuracyBonus + levelBonus;
+            score += totalBonus;
+            
+            // Show level complete screen
+            document.getElementById('nextLevel').textContent = level + 1;
+            document.getElementById('accuracyBonus').textContent = `${accuracy}%`;
+            document.getElementById('levelBonus').textContent = `+${totalBonus} Bonus Points!`;
+            document.getElementById('levelCompleteScreen').style.display = 'flex';
+            
+            updateDisplay();
+            saveGameStats();
+        }
+        
+        // Next level
+        function nextLevel() {
+            level++;
+            
+            // Increase difficulty for next level
+            totalTime = Math.max(30, 60 - (level - 1) * 5);
+            timeLeft = totalTime;
+            moleSpeed = Math.max(400, 1000 - (level - 1) * 100);
+            spawnInterval = Math.max(500, 800 - (level - 1) * 50);
+            
+            // Add powerup every 3 levels
+            if (level % 3 === 0) {
+                slowTimePowerups++;
+                document.getElementById('powerupBtn').innerHTML = `<i class="fas fa-bolt"></i> Slow Time (${slowTimePowerups})`;
+            }
+            
+            // Reset combo and counts
+            combo = 0;
+            comboMultiplier = 1;
+            hits = 0;
+            misses = 0;
+            totalMoles = 0;
+            
+            document.getElementById('levelCompleteScreen').style.display = 'none';
+            
+            // Continue game
+            gameRunning = true;
+            startTimer();
+            startMoleSpawner();
+            updateDisplay();
+        }
+        
+        // Game over (if needed - though we use level completion)
+        function gameOver() {
+            gameRunning = false;
+            gamePaused = false;
+            clearInterval(gameTimer);
+            clearInterval(moleSpawner);
+            
+            // Hide all active moles
+            activeMoles.forEach(index => {
+                hideMole(index, false);
+            });
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalLevel').textContent = level;
+            document.getElementById('finalMoles').textContent = hits;
+            
+            let message = "Time's up!";
+            if (hits > 50) {
+                message = "Excellent whacking skills!";
+            } else if (maxCombo >= 10) {
+                message = "Incredible combo!";
+            }
+            
+            document.getElementById('gameOverMessage').textContent = message;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+            
+            saveGameStats();
+        }
+        
+        // Pause game
+        function pauseGame() {
+            if (!gameRunning) return;
+            
+            gamePaused = !gamePaused;
+            
+            const btn = document.getElementById('pauseBtn');
+            if (gamePaused) {
+                btn.innerHTML = '<i class="fas fa-play"></i> Resume';
+            } else {
+                btn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            }
+        }
+        
+        // Update display
+        function updateDisplay() {
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('levelDisplay').textContent = level;
+            document.getElementById('comboDisplay').textContent = `${comboMultiplier}x`;
+            
+            // Update high score if needed
+            updateHighScoreDisplay();
+            
+            // Flash time when critical
+            if (timeLeft <= 10) {
+                document.getElementById('timeDisplay').classList.add('critical');
+            } else {
+                document.getElementById('timeDisplay').classList.remove('critical');
+            }
+        }
+        
+        // Update combo display
+        function updateComboDisplay() {
+            const comboDisplay = document.getElementById('comboDisplay');
+            comboDisplay.textContent = `${comboMultiplier}x`;
+            
+            // Color based on multiplier
+            if (comboMultiplier >= 4) {
+                comboDisplay.style.color = '#FFD700';
+                comboDisplay.style.textShadow = '0 0 15px rgba(255, 215, 0, 0.7)';
+            } else if (comboMultiplier >= 3) {
+                comboDisplay.style.color = '#9C27B0';
+                comboDisplay.style.textShadow = '0 0 10px rgba(156, 39, 176, 0.7)';
+            } else if (comboMultiplier >= 2) {
+                comboDisplay.style.color = '#2196F3';
+                comboDisplay.style.textShadow = '0 0 10px rgba(33, 150, 243, 0.7)';
+            } else {
+                comboDisplay.style.color = '#ffcc00';
+                comboDisplay.style.textShadow = '0 0 10px rgba(255, 204, 0, 0.5)';
+            }
+        }
+        
+        // Update high score display
+        function updateHighScoreDisplay() {
+            const highScore = parseInt(localStorage.getItem('whackamole_high_score') || 0);
+            if (score > highScore) {
+                localStorage.setItem('whackamole_high_score', score);
+            }
+        }
+        
+        // Save game stats
+        function saveGameStats() {
+            const currentHighScore = localStorage.getItem('whackamole_high_score') || 0;
+            const currentMaxCombo = localStorage.getItem('whackamole_max_combo') || 0;
+            
+            if (score > currentHighScore) {
+                localStorage.setItem('whackamole_high_score', score);
+            }
+            if (maxCombo > currentMaxCombo) {
+                localStorage.setItem('whackamole_max_combo', maxCombo);
+            }
+            
+            // Update total plays and score
+            const plays = parseInt(localStorage.getItem('whackamole_plays') || 0) + 1;
+            const totalScore = parseInt(localStorage.getItem('whackamole_total_score') || 0) + score;
+            
+            localStorage.setItem('whackamole_plays', plays);
+            localStorage.setItem('whackamole_total_score', totalScore);
+        }
+        
+        // Initialize game on load
+        window.addEventListener('load', initGame);
+        
+        // Prevent context menu on long press
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.classList.contains('hole')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Prevent pull-to-refresh on mobile
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.classList.contains('game-board')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        // Add mole hover effect for desktop
+        if (!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            document.addEventListener('mouseover', function(e) {
+                if (e.target.classList.contains('hole')) {
+                    e.target.style.transform = 'scale(1.05)';
+                }
+            });
+            
+            document.addEventListener('mouseout', function(e) {
+                if (e.target.classList.contains('hole')) {
+                    e.target.style.transform = 'scale(1)';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

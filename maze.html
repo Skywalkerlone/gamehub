@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze Runner Xavier | Xavier Games Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c1a2d 0%, #1a3a5f 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 15px;
+            touch-action: manipulation;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            height: 100vh;
+            max-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            width: 100%;
+            padding: 10px;
+            flex-shrink: 0;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(255, 126, 95, 0.5);
+        }
+        
+        .header p {
+            font-size: 1rem;
+            color: #a3c4f3;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(15, 37, 71, 0.9);
+            color: white;
+            border: 2px solid #2a4a7a;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            z-index: 100;
+        }
+        
+        .back-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            background: rgba(15, 37, 71, 0.9);
+            border-radius: 15px;
+            padding: 15px;
+            border: 2px solid #2a4a7a;
+            flex-shrink: 0;
+        }
+        
+        .info-box {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .info-box h3 {
+            font-size: 0.9rem;
+            color: #a3c4f3;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+        
+        .info-value.time-critical {
+            color: #ff5252;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .game-board {
+            width: 100%;
+            flex: 1;
+            min-height: 400px;
+            background: #0f2547;
+            border-radius: 15px;
+            border: 3px solid #2a4a7a;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+            touch-action: none;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+        
+        .control-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: #0c1a2d;
+        }
+        
+        .btn-secondary {
+            background: #2a4a7a;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffcc00;
+            color: #0c1a2d;
+        }
+        
+        .mobile-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 300px;
+            margin-top: 10px;
+            flex-shrink: 0;
+        }
+        
+        .mobile-controls button {
+            background: rgba(42, 74, 122, 0.9);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.8rem;
+            height: 80px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mobile-controls button:active {
+            background: rgba(255, 126, 95, 0.9);
+            transform: scale(0.95);
+        }
+        
+        .mobile-controls .up-btn {
+            grid-column: 2;
+            grid-row: 1;
+        }
+        
+        .mobile-controls .left-btn {
+            grid-column: 1;
+            grid-row: 2;
+        }
+        
+        .mobile-controls .down-btn {
+            grid-column: 2;
+            grid-row: 2;
+        }
+        
+        .mobile-controls .right-btn {
+            grid-column: 3;
+            grid-row: 2;
+        }
+        
+        .mobile-controls .hint-btn {
+            grid-column: 1 / span 3;
+            grid-row: 3;
+            height: 60px;
+            font-size: 1.2rem;
+            background: rgba(255, 204, 0, 0.9);
+            color: #0c1a2d;
+            margin-top: 10px;
+        }
+        
+        .tutorial {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .tutorial h3 {
+            font-size: 2.2rem;
+            color: #ff7e5f;
+            margin-bottom: 20px;
+        }
+        
+        .tutorial p {
+            font-size: 1.2rem;
+            color: #a3c4f3;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            max-width: 500px;
+        }
+        
+        .tutorial-demo {
+            width: 200px;
+            height: 200px;
+            border-radius: 20px;
+            background: rgba(255, 126, 95, 0.1);
+            border: 3px solid rgba(255, 126, 95, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .demo-cell {
+            background: rgba(42, 74, 122, 0.7);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .demo-player {
+            background: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .demo-exit {
+            background: #FFD700;
+            color: #0c1a2d;
+            border-radius: 8px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .demo-key {
+            background: #FF5252;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .game-over h2 {
+            font-size: 3rem;
+            color: #ff7e5f;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 126, 95, 0.7);
+        }
+        
+        .game-over p {
+            font-size: 1.5rem;
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+        
+        .game-over .stats {
+            display: flex;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            color: #ffcc00;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #a3c4f3;
+            margin-top: 5px;
+        }
+        
+        .level-complete {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .level-complete h2 {
+            font-size: 3rem;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.7);
+        }
+        
+        .bonus-points {
+            font-size: 2rem;
+            color: #ffcc00;
+            margin: 20px 0;
+            animation: float 2s infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .hint-path {
+            position: absolute;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        /* Maze Theme Selector */
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .theme-btn {
+            background: rgba(42, 74, 122, 0.7);
+            color: white;
+            border: 2px solid #2a4a7a;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .theme-btn.active {
+            background: #ff7e5f;
+            color: #0c1a2d;
+            border-color: #ff7e5f;
+            font-weight: bold;
+        }
+        
+        /* Warning animation for changing maze */
+        .maze-warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 82, 82, 0.9);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 40;
+            display: none;
+            animation: warningPulse 0.5s infinite;
+        }
+        
+        @keyframes warningPulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .game-board {
+                min-height: 350px;
+            }
+            
+            .mobile-controls {
+                display: grid;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .info-value {
+                font-size: 1.5rem;
+            }
+            
+            .back-btn {
+                top: 10px;
+                left: 10px;
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .tutorial h3 {
+                font-size: 1.8rem;
+            }
+            
+            .tutorial p {
+                font-size: 1rem;
+            }
+            
+            .game-over h2 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .game-board {
+                min-height: 300px;
+            }
+            
+            .info-value {
+                font-size: 1.3rem;
+            }
+            
+            .mobile-controls button {
+                height: 70px;
+                font-size: 1.5rem;
+            }
+            
+            .game-over h2 {
+                font-size: 2rem;
+            }
+            
+            .game-over p {
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (orientation: landscape) and (max-height: 600px) {
+            .container {
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            .game-board {
+                height: 60vh;
+            }
+            
+            .mobile-controls {
+                max-width: 250px;
+            }
+            
+            .mobile-controls button {
+                height: 60px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.history.back()">
+        <i class="fas fa-arrow-left"></i> Back to Menu
+    </button>
+    
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-route"></i> Maze Runner Xavier</h1>
+            <p>Navigate through mazes, collect golden keys, find the exit before time runs out!</p>
+            
+            <div class="theme-selector" id="themeSelector">
+                <button class="theme-btn active" onclick="setMazeTheme('classic')">Classic</button>
+                <button class="theme-btn" onclick="setMazeTheme('forest')">Forest</button>
+                <button class="theme-btn" onclick="setMazeTheme('dungeon')">Dungeon</button>
+                <button class="theme-btn" onclick="setMazeTheme('space')">Space</button>
+                <button class="theme-btn" onclick="setMazeTheme('ice')">Ice</button>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <div class="info-box">
+                <h3>LEVEL</h3>
+                <div class="info-value" id="levelDisplay">1</div>
+            </div>
+            <div class="info-box">
+                <h3>TIME</h3>
+                <div class="info-value" id="timeDisplay">60</div>
+            </div>
+            <div class="info-box">
+                <h3>KEYS</h3>
+                <div class="info-value" id="keysDisplay">0/3</div>
+            </div>
+            <div class="info-box">
+                <h3>MOVES</h3>
+                <div class="info-value" id="movesDisplay">0</div>
+            </div>
+        </div>
+        
+        <div class="game-board">
+            <canvas id="mazeCanvas"></canvas>
+            
+            <div class="maze-warning" id="mazeWarning">MAZE SHIFTING!</div>
+            
+            <div class="tutorial" id="tutorialScreen">
+                <h3>Maze Runner Tutorial</h3>
+                <div class="tutorial-demo">
+                    <div class="demo-grid">
+                        <div class="demo-cell"></div>
+                        <div class="demo-cell"><div class="demo-key"><i class="fas fa-key"></i></div></div>
+                        <div class="demo-cell"></div>
+                        <div class="demo-cell"></div>
+                        <div class="demo-cell"><div class="demo-player"><i class="fas fa-crown"></i></div></div>
+                        <div class="demo-cell"></div>
+                        <div class="demo-cell"></div>
+                        <div class="demo-cell"><div class="demo-exit"><i class="fas fa-flag-checkered"></i></div></div>
+                        <div class="demo-cell"></div>
+                    </div>
+                </div>
+                <p><strong>How to Play:</strong></p>
+                <p>1. Swipe or use buttons to move Xavier (green crown)</p>
+                <p>2. Collect all golden keys (red circles) before time runs out</p>
+                <p>3. Find the golden exit (yellow flag) to complete the level</p>
+                <p>4. Watch out! Mazes shift and block paths randomly!</p>
+                <button class="btn-primary control-btn" onclick="startGame()">
+                    <i class="fas fa-play"></i> Start Game
+                </button>
+            </div>
+            
+            <div class="game-over" id="gameOverScreen">
+                <h2>Game Over!</h2>
+                <p id="gameOverMessage">Time's Up!</p>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="finalLevel">1</div>
+                        <div class="stat-label">Level</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="finalScore">0</div>
+                        <div class="stat-label">Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="finalTime">0</div>
+                        <div class="stat-label">Time Left</div>
+                    </div>
+                </div>
+                <button class="btn-primary control-btn" onclick="startGame()">
+                    <i class="fas fa-redo"></i> Play Again
+                </button>
+            </div>
+            
+            <div class="level-complete" id="levelCompleteScreen">
+                <h2>Level Complete!</h2>
+                <p>You found all keys and reached the exit!</p>
+                <div class="bonus-points" id="bonusPoints">+500 Bonus Points!</div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="nextLevel">2</div>
+                        <div class="stat-label">Next Level</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="levelScore">0</div>
+                        <div class="stat-label">Level Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="timeBonus">0</div>
+                        <div class="stat-label">Time Bonus</div>
+                    </div>
+                </div>
+                <button class="btn-primary control-btn" onclick="nextLevel()">
+                    <i class="fas fa-arrow-right"></i> Next Level
+                </button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-secondary control-btn" onclick="useHint()">
+                <i class="fas fa-lightbulb"></i> Hint (<span id="hintCount">3</span>)
+            </button>
+            <button class="btn-primary control-btn" id="startBtn" onclick="startGame()">
+                <i class="fas fa-play"></i> Start Game
+            </button>
+            <button class="btn-warning control-btn" onclick="resetLevel()">
+                <i class="fas fa-redo"></i> Reset Level
+            </button>
+        </div>
+        
+        <div class="mobile-controls">
+            <button class="up-btn" onclick="movePlayer('up')"><i class="fas fa-arrow-up"></i></button>
+            <button class="left-btn" onclick="movePlayer('left')"><i class="fas fa-arrow-left"></i></button>
+            <button class="down-btn" onclick="movePlayer('down')"><i class="fas fa-arrow-down"></i></button>
+            <button class="right-btn" onclick="movePlayer('right')"><i class="fas fa-arrow-right"></i></button>
+            <button class="hint-btn" onclick="useHint()">
+                <i class="fas fa-lightbulb"></i> Show Hint
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Game Variables
+        const canvas = document.getElementById('mazeCanvas');
+        const ctx = canvas.getContext('2d');
+        let maze = [];
+        let player = { x: 1, y: 1 };
+        let exit = { x: 0, y: 0 };
+        let keys = [];
+        let collectedKeys = 0;
+        let totalKeys = 3;
+        let level = 1;
+        let score = 0;
+        let timeLeft = 60;
+        let moves = 0;
+        let gameRunning = false;
+        let gameTimer = null;
+        let mazeChangeTimer = null;
+        let mazeTheme = 'classic';
+        let hints = 3;
+        let cellSize = 0;
+        let mazeWidth = 15;
+        let mazeHeight = 15;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        // Maze Themes
+        const themes = {
+            classic: {
+                wall: '#2a4a7a',
+                path: '#0f2547',
+                player: '#4CAF50',
+                exit: '#FFD700',
+                key: '#FF5252',
+                text: '#FFFFFF'
+            },
+            forest: {
+                wall: '#2d5a27',
+                path: '#1a3a1f',
+                player: '#4CAF50',
+                exit: '#FFD700',
+                key: '#FF9800',
+                text: '#FFFFFF'
+            },
+            dungeon: {
+                wall: '#5d4037',
+                path: '#3e2723',
+                player: '#795548',
+                exit: '#FFD700',
+                key: '#d32f2f',
+                text: '#FFFFFF'
+            },
+            space: {
+                wall: '#283593',
+                path: '#1a237e',
+                player: '#2196F3',
+                exit: '#FFD700',
+                key: '#E91E63',
+                text: '#FFFFFF'
+            },
+            ice: {
+                wall: '#4fc3f7',
+                path: '#29b6f6',
+                player: '#4CAF50',
+                exit: '#FFD700',
+                key: '#f44336',
+                text: '#0c1a2d'
+            }
+        };
+        
+        // Initialize Game
+        function initGame() {
+            resizeCanvas();
+            generateMaze();
+            drawMaze();
+            
+            // Update display
+            updateDisplay();
+            
+            // Show tutorial for first play
+            const hasPlayed = localStorage.getItem('maze_played');
+            if (!hasPlayed) {
+                document.getElementById('tutorialScreen').style.display = 'flex';
+                localStorage.setItem('maze_played', 'true');
+            }
+        }
+        
+        // Resize canvas
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            
+            // Calculate cell size based on maze dimensions
+            cellSize = Math.min(
+                canvas.width / mazeWidth,
+                canvas.height / mazeHeight
+            ) * 0.9;
+        }
+        
+        // Generate maze using Depth-First Search algorithm
+        function generateMaze() {
+            // Initialize maze with walls
+            maze = [];
+            for (let y = 0; y < mazeHeight; y++) {
+                maze[y] = [];
+                for (let x = 0; x < mazeWidth; x++) {
+                    maze[y][x] = 1; // 1 = wall, 0 = path
+                }
+            }
+            
+            // Start position (odd coordinates for paths)
+            const startX = 1;
+            const startY = 1;
+            player = { x: startX, y: startY };
+            maze[startY][startX] = 0;
+            
+            // Generate paths using DFS
+            const stack = [{ x: startX, y: startY }];
+            const directions = [
+                { dx: 0, dy: -2 }, // up
+                { dx: 2, dy: 0 },  // right
+                { dx: 0, dy: 2 },  // down
+                { dx: -2, dy: 0 }  // left
+            ];
+            
+            while (stack.length > 0) {
+                const current = stack[stack.length - 1];
+                const { x, y } = current;
+                
+                // Get unvisited neighbors
+                const neighbors = [];
+                for (const dir of directions) {
+                    const nx = x + dir.dx;
+                    const ny = y + dir.dy;
+                    
+                    if (nx > 0 && nx < mazeWidth - 1 && ny > 0 && ny < mazeHeight - 1 && maze[ny][nx] === 1) {
+                        neighbors.push({ nx, ny, dir });
+                    }
+                }
+                
+                if (neighbors.length > 0) {
+                    // Pick random neighbor
+                    const { nx, ny, dir } = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    
+                    // Remove wall between current and neighbor
+                    maze[y + dir.dy / 2][x + dir.dx / 2] = 0;
+                    maze[ny][nx] = 0;
+                    
+                    stack.push({ x: nx, y: ny });
+                } else {
+                    stack.pop();
+                }
+            }
+            
+            // Place exit at far corner
+            exit = { x: mazeWidth - 2, y: mazeHeight - 2 };
+            maze[exit.y][exit.x] = 0;
+            
+            // Place keys (make sure they're reachable)
+            keys = [];
+            collectedKeys = 0;
+            totalKeys = Math.min(3 + Math.floor(level / 2), 8);
+            
+            for (let i = 0; i < totalKeys; i++) {
+                let keyX, keyY;
+                let attempts = 0;
+                
+                do {
+                    keyX = Math.floor(Math.random() * (mazeWidth - 2)) + 1;
+                    keyY = Math.floor(Math.random() * (mazeHeight - 2)) + 1;
+                    attempts++;
+                    
+                    if (attempts > 100) {
+                        // Fallback positions
+                        keyX = 3 + i * 2;
+                        keyY = 3 + i * 2;
+                        break;
+                    }
+                } while (maze[keyY][keyX] !== 0 || 
+                        (keyX === player.x && keyY === player.y) ||
+                        (keyX === exit.x && keyY === exit.y) ||
+                        keys.some(k => k.x === keyX && k.y === keyY));
+                
+                keys.push({ x: keyX, y: keyY, collected: false });
+            }
+            
+            // Adjust time based on level and maze size
+            timeLeft = Math.max(30, 90 - level * 5);
+            
+            // Update keys display
+            updateKeysDisplay();
+        }
+        
+        // Draw maze
+        function drawMaze() {
+            const theme = themes[mazeTheme];
+            
+            // Clear canvas
+            ctx.fillStyle = theme.path;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Calculate offset to center maze
+            const offsetX = (canvas.width - mazeWidth * cellSize) / 2;
+            const offsetY = (canvas.height - mazeHeight * cellSize) / 2;
+            
+            // Draw walls and paths
+            for (let y = 0; y < mazeHeight; y++) {
+                for (let x = 0; x < mazeWidth; x++) {
+                    const cellX = offsetX + x * cellSize;
+                    const cellY = offsetY + y * cellSize;
+                    
+                    if (maze[y][x] === 1) {
+                        // Draw wall
+                        ctx.fillStyle = theme.wall;
+                        ctx.fillRect(cellX, cellY, cellSize, cellSize);
+                        
+                        // Add texture to walls
+                        ctx.fillStyle = theme.wall === '#2a4a7a' ? '#1a3a5f' : 
+                                       theme.wall === '#2d5a27' ? '#1a3a1f' :
+                                       theme.wall === '#5d4037' ? '#3e2723' :
+                                       theme.wall === '#283593' ? '#1a237e' : '#29b6f6';
+                        ctx.fillRect(cellX + 2, cellY + 2, cellSize - 4, cellSize - 4);
+                    }
+                }
+            }
+            
+            // Draw exit
+            const exitX = offsetX + exit.x * cellSize;
+            const exitY = offsetY + exit.y * cellSize;
+            ctx.fillStyle = theme.exit;
+            ctx.fillRect(exitX + 5, exitY + 5, cellSize - 10, cellSize - 10);
+            
+            // Draw exit flag
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = `${cellSize * 0.6}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🏁', exitX + cellSize/2, exitY + cellSize/2);
+            
+            // Draw keys
+            keys.forEach(key => {
+                if (!key.collected) {
+                    const keyX = offsetX + key.x * cellSize;
+                    const keyY = offsetY + key.y * cellSize;
+                    
+                    // Draw key circle
+                    ctx.fillStyle = theme.key;
+                    ctx.beginPath();
+                    ctx.arc(keyX + cellSize/2, keyY + cellSize/2, cellSize/3, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Draw key icon
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = `${cellSize * 0.5}px Arial`;
+                    ctx.fillText('🔑', keyX + cellSize/2, keyY + cellSize/2);
+                    
+                    // Add glow effect
+                    ctx.shadowColor = theme.key;
+                    ctx.shadowBlur = 15;
+                    ctx.beginPath();
+                    ctx.arc(keyX + cellSize/2, keyY + cellSize/2, cellSize/3 + 5, 0, Math.PI * 2);
+                    ctx.strokeStyle = theme.key + '80';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                }
+            });
+            
+            // Draw player
+            const playerX = offsetX + player.x * cellSize;
+            const playerY = offsetY + player.y * cellSize;
+            
+            // Draw player body
+            ctx.fillStyle = theme.player;
+            ctx.beginPath();
+            ctx.arc(playerX + cellSize/2, playerY + cellSize/2, cellSize/2.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw crown
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.moveTo(playerX + cellSize/2, playerY + cellSize/4);
+            ctx.lineTo(playerX + cellSize/3, playerY + cellSize/2);
+            ctx.lineTo(playerX + cellSize/2, playerY + cellSize/3);
+            ctx.lineTo(playerX + 2*cellSize/3, playerY + cellSize/2);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Draw player eyes
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(playerX + cellSize/2 - cellSize/6, playerY + cellSize/2 - cellSize/8, cellSize/10, 0, Math.PI * 2);
+            ctx.arc(playerX + cellSize/2 + cellSize/6, playerY + cellSize/2 - cellSize/8, cellSize/10, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw player smile
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(playerX + cellSize/2, playerY + cellSize/2, cellSize/4, 0.2 * Math.PI, 0.8 * Math.PI);
+            ctx.stroke();
+            
+            // Add player glow
+            ctx.shadowColor = theme.player;
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(playerX + cellSize/2, playerY + cellSize/2, cellSize/2.5 + 3, 0, Math.PI * 2);
+            ctx.strokeStyle = theme.player + '80';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            
+            // Draw level number
+            ctx.fillStyle = theme.text;
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Level ${level}`, 10, 25);
+            
+            // Draw instructions
+            ctx.font = '14px Arial';
+            ctx.fillText(`Find ${totalKeys} keys and reach the exit!`, 10, 45);
+            
+            // Draw time warning if low
+            if (timeLeft <= 10) {
+                ctx.fillStyle = '#ff5252';
+                ctx.font = 'bold 16px Arial';
+                ctx.fillText('HURRY UP!', canvas.width - 100, 25);
+            }
+        }
+        
+        // Move player
+        function movePlayer(direction) {
+            if (!gameRunning) return;
+            
+            let newX = player.x;
+            let newY = player.y;
+            
+            switch(direction) {
+                case 'up': newY--; break;
+                case 'down': newY++; break;
+                case 'left': newX--; break;
+                case 'right': newX++; break;
+            }
+            
+            // Check if move is valid (not a wall)
+            if (newX >= 0 && newX < mazeWidth && newY >= 0 && newY < mazeHeight && maze[newY][newX] === 0) {
+                player.x = newX;
+                player.y = newY;
+                moves++;
+                
+                // Check for key collection
+                keys.forEach(key => {
+                    if (!key.collected && key.x === player.x && key.y === player.y) {
+                        key.collected = true;
+                        collectedKeys++;
+                        updateKeysDisplay();
+                        
+                        // Add points for collecting key
+                        score += 100 * level;
+                        updateDisplay();
+                        
+                        // Play sound effect (simulated)
+                        playSound('collect');
+                    }
+                });
+                
+                // Check if reached exit with all keys
+                if (player.x === exit.x && player.y === exit.y && collectedKeys === totalKeys) {
+                    completeLevel();
+                    return;
+                }
+                
+                drawMaze();
+                updateDisplay();
+            }
+        }
+        
+        // Use hint
+        function useHint() {
+            if (!gameRunning || hints <= 0) return;
+            
+            hints--;
+            document.getElementById('hintCount').textContent = hints;
+            
+            // Find path to nearest uncollected key or exit
+            const target = keys.find(k => !k.collected) || exit;
+            const path = findPath(player.x, player.y, target.x, target.y);
+            
+            if (path && path.length > 1) {
+                // Draw hint path
+                const theme = themes[mazeTheme];
+                const offsetX = (canvas.width - mazeWidth * cellSize) / 2;
+                const offsetY = (canvas.height - mazeHeight * cellSize) / 2;
+                
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                
+                path.forEach((point, index) => {
+                    const x = offsetX + point.x * cellSize + cellSize/2;
+                    const y = offsetY + point.y * cellSize + cellSize/2;
+                    
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+                
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Remove hint after 3 seconds
+                setTimeout(drawMaze, 3000);
+            }
+        }
+        
+        // Find path using A* algorithm
+        function findPath(startX, startY, endX, endY) {
+            const openSet = [];
+            const closedSet = [];
+            const cameFrom = new Map();
+            const gScore = new Map();
+            const fScore = new Map();
+            
+            const startKey = `${startX},${startY}`;
+            const endKey = `${endX},${endY}`;
+            
+            gScore.set(startKey, 0);
+            fScore.set(startKey, heuristic(startX, startY, endX, endY));
+            openSet.push({ x: startX, y: startY, f: fScore.get(startKey) });
+            
+            while (openSet.length > 0) {
+                openSet.sort((a, b) => a.f - b.f);
+                const current = openSet.shift();
+                const currentKey = `${current.x},${current.y}`;
+                
+                if (currentKey === endKey) {
+                    // Reconstruct path
+                    const path = [];
+                    let temp = current;
+                    
+                    while (temp) {
+                        path.unshift({ x: temp.x, y: temp.y });
+                        const key = `${temp.x},${temp.y}`;
+                        temp = cameFrom.get(key);
+                    }
+                    
+                    return path;
+                }
+                
+                closedSet.push(currentKey);
+                
+                // Check neighbors
+                const neighbors = [
+                    { x: current.x, y: current.y - 1 },
+                    { x: current.x + 1, y: current.y },
+                    { x: current.x, y: current.y + 1 },
+                    { x: current.x - 1, y: current.y }
+                ];
+                
+                for (const neighbor of neighbors) {
+                    // Check if neighbor is walkable
+                    if (neighbor.x < 0 || neighbor.x >= mazeWidth || 
+                        neighbor.y < 0 || neighbor.y >= mazeHeight || 
+                        maze[neighbor.y][neighbor.x] === 1) {
+                        continue;
+                    }
+                    
+                    const neighborKey = `${neighbor.x},${neighbor.y}`;
+                    
+                    if (closedSet.includes(neighborKey)) continue;
+                    
+                    const tentativeGScore = gScore.get(currentKey) + 1;
+                    
+                    if (!gScore.has(neighborKey) || tentativeGScore < gScore.get(neighborKey)) {
+                        cameFrom.set(neighborKey, current);
+                        gScore.set(neighborKey, tentativeGScore);
+                        fScore.set(neighborKey, tentativeGScore + heuristic(neighbor.x, neighbor.y, endX, endY));
+                        
+                        if (!openSet.find(n => `${n.x},${n.y}` === neighborKey)) {
+                            openSet.push({ 
+                                x: neighbor.x, 
+                                y: neighbor.y, 
+                                f: fScore.get(neighborKey) 
+                            });
+                        }
+                    }
+                }
+            }
+            
+            return null; // No path found
+        }
+        
+        // Heuristic function for A*
+        function heuristic(x1, y1, x2, y2) {
+            return Math.abs(x1 - x2) + Math.abs(y1 - y2);
+        }
+        
+        // Start game
+        function startGame() {
+            if (gameRunning) return;
+            
+            document.getElementById('tutorialScreen').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('levelCompleteScreen').style.display = 'none';
+            
+            level = 1;
+            score = 0;
+            hints = 3;
+            moves = 0;
+            
+            mazeWidth = 15;
+            mazeHeight = 15;
+            
+            document.getElementById('hintCount').textContent = hints;
+            document.getElementById('startBtn').innerHTML = '<i class="fas fa-redo"></i> Restart';
+            
+            generateMaze();
+            drawMaze();
+            updateDisplay();
+            
+            gameRunning = true;
+            startTimer();
+            startMazeChanges();
+        }
+        
+        // Start timer
+        function startTimer() {
+            clearInterval(gameTimer);
+            timeLeft = Math.max(30, 90 - level * 5);
+            updateTimeDisplay();
+            
+            gameTimer = setInterval(() => {
+                if (!gameRunning) return;
+                
+                timeLeft--;
+                updateTimeDisplay();
+                
+                if (timeLeft <= 0) {
+                    gameOver();
+                }
+                
+                // Flash time when critical
+                if (timeLeft <= 10) {
+                    document.getElementById('timeDisplay').classList.add('time-critical');
+                } else {
+                    document.getElementById('timeDisplay').classList.remove('time-critical');
+                }
+            }, 1000);
+        }
+        
+        // Start maze changes
+        function startMazeChanges() {
+            clearInterval(mazeChangeTimer);
+            
+            // Change maze every 15-25 seconds based on level
+            const changeInterval = Math.max(15000, 25000 - level * 1000);
+            
+            mazeChangeTimer = setInterval(() => {
+                if (!gameRunning) return;
+                
+                // Show warning
+                showMazeWarning();
+                
+                // Wait a bit then change maze
+                setTimeout(() => {
+                    if (!gameRunning) return;
+                    
+                    // Change some walls randomly
+                    for (let i = 0; i < Math.min(5 + level, 15); i++) {
+                        const x = Math.floor(Math.random() * mazeWidth);
+                        const y = Math.floor(Math.random() * mazeHeight);
+                        
+                        // Don't change player or exit positions
+                        if ((x === player.x && y === player.y) || 
+                            (x === exit.x && y === exit.y) ||
+                            keys.some(k => k.x === x && k.y === y && !k.collected)) {
+                            continue;
+                        }
+                        
+                        // Toggle wall/path (but ensure player can still reach exit)
+                        maze[y][x] = maze[y][x] === 1 ? 0 : 1;
+                    }
+                    
+                    // Redraw maze
+                    drawMaze();
+                }, 1000);
+            }, changeInterval);
+        }
+        
+        // Show maze warning
+        function showMazeWarning() {
+            const warning = document.getElementById('mazeWarning');
+            warning.style.display = 'block';
+            
+            setTimeout(() => {
+                warning.style.display = 'none';
+            }, 2000);
+        }
+        
+        // Update display
+        function updateDisplay() {
+            document.getElementById('levelDisplay').textContent = level;
+            document.getElementById('movesDisplay').textContent = moves;
+            updateKeysDisplay();
+            updateTimeDisplay();
+        }
+        
+        function updateKeysDisplay() {
+            document.getElementById('keysDisplay').textContent = `${collectedKeys}/${totalKeys}`;
+        }
+        
+        function updateTimeDisplay() {
+            document.getElementById('timeDisplay').textContent = timeLeft;
+        }
+        
+        // Complete level
+        function completeLevel() {
+            gameRunning = false;
+            clearInterval(gameTimer);
+            clearInterval(mazeChangeTimer);
+            
+            // Calculate score
+            const timeBonus = timeLeft * 10;
+            const levelBonus = level * 200;
+            const movesBonus = Math.max(0, 500 - moves * 5);
+            const totalLevelScore = 500 + timeBonus + levelBonus + movesBonus;
+            
+            score += totalLevelScore;
+            
+            // Show level complete screen
+            document.getElementById('nextLevel').textContent = level + 1;
+            document.getElementById('levelScore').textContent = totalLevelScore;
+            document.getElementById('timeBonus').textContent = timeBonus;
+            document.getElementById('bonusPoints').textContent = `+${totalLevelScore} Points!`;
+            document.getElementById('levelCompleteScreen').style.display = 'flex';
+            
+            // Play sound effect (simulated)
+            playSound('win');
+        }
+        
+        // Next level
+        function nextLevel() {
+            level++;
+            moves = 0;
+            
+            // Increase maze size every 3 levels
+            if (level % 3 === 0) {
+                mazeWidth = Math.min(25, mazeWidth + 2);
+                mazeHeight = Math.min(25, mazeHeight + 2);
+            }
+            
+            generateMaze();
+            drawMaze();
+            updateDisplay();
+            
+            document.getElementById('levelCompleteScreen').style.display = 'none';
+            gameRunning = true;
+            startTimer();
+            startMazeChanges();
+        }
+        
+        // Reset current level
+        function resetLevel() {
+            if (!gameRunning) return;
+            
+            player = { x: 1, y: 1 };
+            collectedKeys = 0;
+            moves = 0;
+            keys.forEach(key => key.collected = false);
+            
+            // Reset time based on level
+            timeLeft = Math.max(30, 90 - level * 5);
+            
+            updateKeysDisplay();
+            updateDisplay();
+            drawMaze();
+            
+            // Reset timer and maze changes
+            clearInterval(gameTimer);
+            clearInterval(mazeChangeTimer);
+            startTimer();
+            startMazeChanges();
+        }
+        
+        // Game over
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(gameTimer);
+            clearInterval(mazeChangeTimer);
+            
+            document.getElementById('finalLevel').textContent = level;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalTime').textContent = timeLeft;
+            
+            let message = "Time's Up!";
+            if (collectedKeys < totalKeys) {
+                message = `Only ${collectedKeys}/${totalKeys} keys collected!`;
+            }
+            
+            document.getElementById('gameOverMessage').textContent = message;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+            
+            // Save high score
+            saveHighScore();
+            
+            // Play sound effect (simulated)
+            playSound('lose');
+        }
+        
+        // Set maze theme
+        function setMazeTheme(theme) {
+            mazeTheme = theme;
+            
+            // Update active button
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (gameRunning) {
+                drawMaze();
+            }
+        }
+        
+        // Save high score
+        function saveHighScore() {
+            const currentHighScore = localStorage.getItem('maze_high_score') || 0;
+            if (score > currentHighScore) {
+                localStorage.setItem('maze_high_score', score);
+                localStorage.setItem('maze_high_level', level);
+            }
+            
+            // Update total plays and score
+            const plays = parseInt(localStorage.getItem('maze_plays') || 0) + 1;
+            const totalScore = parseInt(localStorage.getItem('maze_total_score') || 0) + score;
+            
+            localStorage.setItem('maze_plays', plays);
+            localStorage.setItem('maze_total_score', totalScore);
+        }
+        
+        // Simulated sound effects
+        function playSound(type) {
+            // In a real implementation, you would play actual audio files
+            console.log(`Playing ${type} sound`);
+        }
+        
+        // Touch controls
+        canvas.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            if (!gameRunning) return;
+            
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        }, { passive: false });
+        
+        canvas.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            if (!gameRunning || !touchStartX) return;
+            
+            const touch = e.changedTouches[0];
+            const dx = touch.clientX - touchStartX;
+            const dy = touch.clientY - touchStartY;
+            
+            // Minimum swipe distance
+            const minSwipeDistance = 30;
+            
+            if (Math.abs(dx) > Math.abs(dy)) {
+                // Horizontal swipe
+                if (Math.abs(dx) > minSwipeDistance) {
+                    if (dx > 0) movePlayer('right');
+                    else if (dx < 0) movePlayer('left');
+                }
+            } else {
+                // Vertical swipe
+                if (Math.abs(dy) > minSwipeDistance) {
+                    if (dy > 0) movePlayer('down');
+                    else if (dy < 0) movePlayer('up');
+                }
+            }
+            
+            touchStartX = 0;
+            touchStartY = 0;
+        }, { passive: false });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', function(e) {
+            if (!gameRunning) return;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    e.preventDefault();
+                    movePlayer('up');
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    e.preventDefault();
+                    movePlayer('down');
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    e.preventDefault();
+                    movePlayer('left');
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    e.preventDefault();
+                    movePlayer('right');
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    useHint();
+                    break;
+                case 'r':
+                case 'R':
+                    if (e.ctrlKey) {
+                        e.preventDefault();
+                        resetLevel();
+                    }
+                    break;
+            }
+        });
+        
+        // Window resize handling
+        window.addEventListener('resize', function() {
+            resizeCanvas();
+            drawMaze();
+        });
+        
+        // Initialize game on load
+        window.addEventListener('load', initGame);
+        
+        // Prevent context menu on long press
+        canvas.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+    </script>
+</body>
+</html>

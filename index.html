@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skywalker Games Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c1a2d 0%, #1a3a5f 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            touch-action: manipulation;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(255, 126, 95, 0.5);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: #a3c4f3;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            background: rgba(15, 37, 71, 0.8);
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #2a4a7a;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #a3c4f3;
+            margin-top: 5px;
+        }
+        
+        .category-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .category-tab {
+            background: rgba(42, 74, 122, 0.7);
+            color: #a3c4f3;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .category-tab.active {
+            background: #ff7e5f;
+            color: #0c1a2d;
+        }
+        
+        .category-tab:hover {
+            transform: translateY(-2px);
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 20px;
+        }
+        
+        .game-card {
+            background: rgba(15, 37, 71, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            border: 3px solid #2a4a7a;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 280px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: #ff7e5f;
+        }
+        
+        .game-card:active {
+            transform: translateY(-5px);
+        }
+        
+        .game-number {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ff7e5f;
+            color: #0c1a2d;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .game-icon {
+            font-size: 4rem;
+            margin: 20px 0;
+            color: #ffcc00;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        .game-card p {
+            font-size: 0.95rem;
+            color: #a3c4f3;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        
+        .game-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .feature-tag {
+            background: rgba(42, 74, 122, 0.7);
+            color: #a3c4f3;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        .play-btn {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: #0c1a2d;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 126, 95, 0.4);
+        }
+        
+        .play-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #7a9ccc;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(42, 74, 122, 0.5);
+        }
+        
+        .mobile-warning {
+            display: none;
+            background: rgba(255, 126, 95, 0.1);
+            border: 2px solid rgba(255, 126, 95, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin: 20px auto;
+            max-width: 600px;
+            color: #feb47b;
+        }
+        
+        .mobile-warning i {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .search-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: 2px solid #2a4a7a;
+            background: rgba(15, 37, 71, 0.8);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .search-input:focus {
+            border-color: #ff7e5f;
+        }
+        
+        .search-input::placeholder {
+            color: #7a9ccc;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header p {
+                font-size: 1.1rem;
+            }
+            
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 20px;
+                padding: 10px;
+            }
+            
+            .game-card {
+                padding: 20px;
+                min-height: 250px;
+            }
+            
+            .game-icon {
+                font-size: 3.5rem;
+                height: 80px;
+            }
+            
+            .game-card h3 {
+                font-size: 1.4rem;
+            }
+            
+            .mobile-warning {
+                display: block;
+            }
+            
+            .category-tabs {
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding-bottom: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .game-card {
+                min-height: 230px;
+                padding: 15px;
+            }
+            
+            .game-icon {
+                font-size: 3rem;
+                height: 70px;
+            }
+            
+            .game-card h3 {
+                font-size: 1.3rem;
+            }
+            
+            .game-card p {
+                font-size: 0.9rem;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 15px;
+                padding: 20px;
+            }
+        }
+        
+        @media (orientation: landscape) and (max-height: 600px) {
+            .header {
+                margin-bottom: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .games-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-crown"></i> Skywalker Games Hub</h1>
+            <p>Explore 22 amazing Xavier-themed games! All games are optimized for mobile with swipe and touch controls. Each game features unique gameplay, power-ups, and progressive challenges.</p>
+            
+            <div class="mobile-warning">
+                <i class="fas fa-mobile-alt"></i>
+                <p><strong>Mobile Recommended:</strong> All games support swipe and touch controls. For best experience, play on your phone!</p>
+            </div>
+            
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value">22</div>
+                    <div class="stat-label">Games</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalPlays">0</div>
+                    <div class="stat-label">Total Plays</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalScore">0</div>
+                    <div class="stat-label">Total Score</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search games..." id="searchInput">
+        </div>
+        
+        <div class="category-tabs">
+            <button class="category-tab active" onclick="filterGames('all')">All Games</button>
+            <button class="category-tab" onclick="filterGames('arcade')">Arcade</button>
+            <button class="category-tab" onclick="filterGames('puzzle')">Puzzle</button>
+            <button class="category-tab" onclick="filterGames('action')">Action</button>
+            <button class="category-tab" onclick="filterGames('strategy')">Strategy</button>
+            <button class="category-tab" onclick="filterGames('educational')">Educational</button>
+            <button class="category-tab" onclick="filterGames('new')">New Games</button>
+        </div>
+        
+        <div class="games-grid" id="gamesContainer">
+            <!-- Original 10 Games -->
+            
+            <!-- Game 1: Snake Xavier -->
+            <div class="game-card" data-category="arcade" data-name="snake xavier" onclick="loadGame('snake')">
+                <div class="game-number">1</div>
+                <div class="game-icon"><i class="fas fa-food"></i></div>
+                <h3>Snake Xavier</h3>
+                <p>Control Xavier the snake, collect golden X's, avoid walls. Every 5th food is a power-up!</p>
+                <div class="game-features">
+                    <span class="feature-tag">Swipe Controls</span>
+                    <span class="feature-tag">Power-ups</span>
+                    <span class="feature-tag">Growing Mechanic</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+            <!-- Game 2: Space Invaders Xavier -->
+            <div class="game-card" data-category="action" data-name="space invaders" onclick="loadGame('invaders')">
+                <div class="game-number">2</div>
+                <div class="game-icon"><i class="fas fa-space-shuttle"></i></div>
+                <h3>Space Invaders</h3>
+                <p>Defend against Xavier aliens! Swipe to move, tap to shoot. Power-ups drop from destroyed aliens.</p>
+                <div class="game-features">
+                    <span class="feature-tag">Swipe & Tap</span>
+                    <span class="feature-tag">Shooting</span>
+                    <span class="feature-tag">Boss Battles</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+            <!-- Game 3: Maze Runner Xavier -->
+            <div class="game-card" data-category="puzzle" data-name="maze runner" onclick="loadGame('maze')">
+                <div class="game-number">3</div>
+                <div class="game-icon"><i class="fas fa-route"></i></div>
+                <h3>Maze Runner</h3>
+                <p>Navigate through complex mazes, collect keys, find the exit before time runs out!</p>
+                <div class="game-features">
+                    <span class="feature-tag">4-Direction Swipe</span>
+                    <span class="feature-tag">Timed</span>
+                    <span class="feature-tag">Puzzle</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+            <!-- Game 4: Match-3 Xavier -->
+            <div class="game-card" data-category="puzzle" data-name="match 3" onclick="loadGame('match3')">
+                <div class="game-number">4</div>
+                <div class="game-icon"><i class="fas fa-th-large"></i></div>
+                <h3>Match-3 Xavier</h3>
+                <p>Match colorful X's! Create combos, use crown tiles, beat the score targets.</p>
+                <div class="game-features">
+                    <span class="feature-tag">Drag & Drop</span>
+                    <span class="feature-tag">Combo System</span>
+                    <span class="feature-tag">Special Tiles</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+            <!-- Game 5: Flappy Xavier -->
+            <div class="game-card" data-category="arcade" data-name="flappy" onclick="loadGame('flappy')">
+                <div class="game-number">5</div>
+                <div class="game-icon"><i class="fas fa-dove"></i></div>
+                <h3>Flappy Xavier</h3>
+                <p>Tap to keep Xavier flying through pipes. Collect golden X's for extra points!</p>
+                <div class="game-features">
+                    <span class="feature-tag">One-Tap</span>
+                    <span class="feature-tag">Endless</span>
+                    <span class="feature-tag">Collectibles</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+            <!-- Game 6: Memory Match -->
+            <div class="game-card" data-category="puzzle" data-name="memory match" onclick="loadGame('memory')">
+                <div class="game-number">6</div>
+                <div class="game-icon"><i class="fas fa-brain"></i></div>
+                <h3>Memory Match</h3>
+                <p>Find matching pairs of Xavier cards. Test your memory with increasing difficulty!</p>
+                <div class="game-features">
+                    <span class="feature-tag">Memory</span>
+                    <span class="feature-tag">Timed</span>
+                    <span class="feature-tag">Wild Cards</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+    
+            <!-- Game 8: Tetris Xavier -->
+            <div class="game-card" data-category="puzzle" data-name="tetris" onclick="loadGame('tetris')">
+                <div class="game-number">8</div>
+                <div class="game-icon"><i class="fas fa-gamepad"></i></div>
+                <h3>Tetris Xavier</h3>
+                <p>Fit X-shaped blocks. Clear lines with crown blocks for bonus points!</p>
+                <div class="game-features">
+                    <span class="feature-tag">Rotation</span>
+                    <span class="feature-tag">Speed Increase</span>
+                    <span class="feature-tag">Special Blocks</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+            <!-- Game 9: Brick Breaker -->
+            <div class="game-card" data-category="arcade" data-name="brick breaker" onclick="loadGame('brick')">
+                <div class="game-number">9</div>
+                <div class="game-icon"><i class="fas fa-baseball-ball"></i></div>
+                <h3>Brick Breaker</h3>
+                <p>Swipe to control paddle, break Xavier bricks. Multiple ball types and power-ups!</p>
+                <div class="game-features">
+                    <span class="feature-tag">Physics</span>
+                    <span class="feature-tag">Power-ups</span>
+                    <span class="feature-tag">Multiple Balls</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+            <!-- Game 10: Platform Jumper -->
+            <div class="game-card" data-category="action" data-name="platform jumper" onclick="loadGame('platform')">
+                <div class="game-number">10</div>
+                <div class="game-icon"><i class="fas fa-running"></i></div>
+                <h3>Platform Jumper</h3>
+                <p>Jump between platforms, collect X's, avoid obstacles. Infinite vertical scroller!</p>
+                <div class="game-features">
+                    <span class="feature-tag">Auto-Jump</span>
+                    <span class="feature-tag">Swipe Movement</span>
+                    <span class="feature-tag">Power-ups</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+            <!-- Game 11: Dino Runner Xavier -->
+            <div class="game-card" data-category="action" data-name="dino runner" onclick="loadGame('dino')">
+                <div class="game-number">11</div>
+                <div class="game-icon"><i class="fas fa-dragon"></i></div>
+                <h3>Dino Runner Xavier</h3>
+                <p>Tap to jump over cacti, swipe to duck. Collect X's and avoid obstacles!</p>
+                <div class="game-features">
+                    <span class="feature-tag">Endless Runner</span>
+                    <span class="feature-tag">Tap & Swipe</span>
+                    <span class="feature-tag">Increasing Speed</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+            <!-- Game 12: Word Search Xavier -->
+            <div class="game-card" data-category="educational" data-name="word search" onclick="loadGame('wordsearch')">
+                <div class="game-number">12</div>
+                <div class="game-icon"><i class="fas fa-search"></i></div>
+                <h3>Word Search Xavier</h3>
+                <p>Find hidden words in the grid. Swipe to select letters, use crown hints!</p>
+                <div class="game-features">
+                    <span class="feature-tag">Educational</span>
+                    <span class="feature-tag">Word Puzzle</span>
+                    <span class="feature-tag">Hint System</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+            <!-- Game 13: Pac-Man Xavier -->
+            <div class="game-card" data-category="arcade" data-name="pac man" onclick="loadGame('pacman')">
+                <div class="game-number">13</div>
+                <div class="game-icon"><i class="fas fa-ghost"></i></div>
+                <h3>Pac-Man Xavier</h3>
+                <p>Navigate through mazes eating dots while avoiding ghosts. Power pellets give temporary invincibility!</p>
+                <div class="game-features">
+                    <span class="feature-tag">Classic Arcade</span>
+                    <span class="feature-tag">Maze Navigation</span>
+                    <span class="feature-tag">Power Pellets</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+          
+            <!-- Game 15: Whack-A-Mole Xavier -->
+            <div class="game-card" data-category="arcade" data-name="whack a mole" onclick="loadGame('whackamole')">
+                <div class="game-number">15</div>
+                <div class="game-icon"><i class="fas fa-hammer"></i></div>
+                <h3>Whack-A-Mole Xavier</h3>
+                <p>Tap moles as they pop up! Avoid hitting crowns for bonus points. Speed increases over time!</p>
+                <div class="game-features">
+                    <span class="feature-tag">Fast Reactions</span>
+                    <span class="feature-tag">Tap Game</span>
+                    <span class="feature-tag">Increasing Speed</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+            <!-- Game 16: Tower Defense Xavier -->
+            <div class="game-card" data-category="strategy" data-name="tower defense" onclick="loadGame('towerdefense')">
+                <div class="game-number">16</div>
+                <div class="game-icon"><i class="fas fa-fort-awesome"></i></div>
+                <h3>Tower Defense Xavier</h3>
+                <p>Build towers to defend against waves of enemies. Upgrade towers and plan your strategy!</p>
+                <div class="game-features">
+                    <span class="feature-tag">Strategy</span>
+                    <span class="feature-tag">Tower Building</span>
+                    <span class="feature-tag">Wave Based</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+            <!-- Game 17: Simon Says Xavier -->
+            <div class="game-card" data-category="puzzle" data-name="simon says" onclick="loadGame('simon')">
+                <div class="game-number">17</div>
+                <div class="game-icon"><i class="fas fa-repeat"></i></div>
+                <h3>Simon Says Xavier</h3>
+                <p>Repeat the color sequence shown by Simon. The sequence gets longer each round!</p>
+                <div class="game-features">
+                    <span class="feature-tag">Memory</span>
+                    <span class="feature-tag">Pattern Recognition</span>
+                    <span class="feature-tag">Increasing Difficulty</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+            <!-- Game 18: Racing Xavier -->
+            <div class="game-card" data-category="action" data-name="racing" onclick="loadGame('racing')">
+                <div class="game-number">18</div>
+                <div class="game-icon"><i class="fas fa-flag-checkered"></i></div>
+                <h3>Racing Xavier</h3>
+                <p>Swipe left/right to avoid traffic, collect X's for nitro boost. Race for the highest distance!</p>
+                <div class="game-features">
+                    <span class="feature-tag">Endless Racing</span>
+                    <span class="feature-tag">Swipe Controls</span>
+                    <span class="feature-tag">Nitro Boost</span>
+                </div>
+                <button class="play-btn"><i class="fas fa-play"></i> Play Now</button>
+            </div>
+            
+         
+        
+         
+            
+         
+        </div>
+        
+        <div class="footer">
+            <p>Xavier Games Hub | 22 Games Total | All optimized for mobile | Created with HTML, CSS & JavaScript</p>
+            <p>Last Updated: <span id="currentDate"></span></p>
+            <p><i class="fas fa-crown"></i> Xavier Games - Where Every Game Has a Crown!</p>
+        </div>
+    </div>
+
+    <script>
+        // Update current date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        // Load game stats from localStorage
+        function updateStats() {
+            let totalPlays = 0;
+            let totalScore = 0;
+            
+            // Check each game's stats
+            const games = [
+                'snake', 'invaders', 'maze', 'match3', 'flappy', 'memory', 
+                'game2048', 'tetris', 'brick', 'platform', 'dino', 'wordsearch',
+                'pacman', 'sudoku', 'whackamole', 'towerdefense', 'simon',
+                'racing', 'physics', 'fishing', 'rhythm', 'cooking'
+            ];
+            
+            games.forEach(game => {
+                const plays = localStorage.getItem(`${game}_plays`) || 0;
+                const score = localStorage.getItem(`${game}_total_score`) || 0;
+                totalPlays += parseInt(plays);
+                totalScore += parseInt(score);
+            });
+            
+            document.getElementById('totalPlays').textContent = totalPlays;
+            document.getElementById('totalScore').textContent = totalScore.toLocaleString();
+        }
+        
+        // Load game function
+        function loadGame(gameName) {
+            // Record play
+            const currentPlays = parseInt(localStorage.getItem(`${gameName}_plays`) || 0);
+            localStorage.setItem(`${gameName}_plays`, currentPlays + 1);
+            updateStats();
+            
+            // Show coming soon for games not yet implemented
+            const implementedGames = ['snake', 'invaders', 'maze' , 'match3', 'flappy' ,'memory', 'game2048', 'platform','wordsearch', 'tetris','dino', 'pacman','whackamole', 'towerdefense'];
+            if (!implementedGames.includes(gameName)) {
+                alert(`🎮 ${gameName.charAt(0).toUpperCase() + gameName.slice(1)} is coming soon!\n\nThis game is still in development. Check back later!`);
+                return;
+            }
+            
+            // Open game in new tab for implemented games
+            window.open(`${gameName}.html`, '_blank');
+        }
+        
+        // Initialize stats on load
+        window.addEventListener('load', updateStats);
+        
+        // Category filtering
+        function filterGames(category) {
+            // Update active tab
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const gameCards = document.querySelectorAll('.game-card');
+            
+            gameCards.forEach(card => {
+                if (category === 'all') {
+                    card.style.display = 'flex';
+                } else if (category === 'new') {
+                    // Show last 5 games as "new"
+                    const gameNumber = parseInt(card.querySelector('.game-number').textContent);
+                    card.style.display = gameNumber > 17 ? 'flex' : 'none';
+                } else {
+                    card.style.display = card.dataset.category === category ? 'flex' : 'none';
+                }
+            });
+        }
+        
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const gameCards = document.querySelectorAll('.game-card');
+            
+            gameCards.forEach(card => {
+                const gameName = card.dataset.name.toLowerCase();
+                const gameTitle = card.querySelector('h3').textContent.toLowerCase();
+                const gameDesc = card.querySelector('p').textContent.toLowerCase();
+                
+                if (gameName.includes(searchTerm) || 
+                    gameTitle.includes(searchTerm) || 
+                    gameDesc.includes(searchTerm) ||
+                    searchTerm === '') {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+        
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            const cards = document.querySelectorAll('.game-card[style*="flex"]');
+            let currentIndex = -1;
+            
+            // Find currently focused card
+            cards.forEach((card, index) => {
+                if (card === document.activeElement || card.contains(document.activeElement)) {
+                    currentIndex = index;
+                }
+            });
+            
+            switch(e.key) {
+                case 'ArrowRight':
+                    e.preventDefault();
+                    if (currentIndex < cards.length - 1) {
+                        cards[currentIndex + 1].focus();
+                    }
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    if (currentIndex > 0) {
+                        cards[currentIndex - 1].focus();
+                    }
+                    break;
+                case 'Enter':
+                    if (currentIndex >= 0) {
+                        cards[currentIndex].click();
+                    }
+                    break;
+            }
+        });
+        
+        // Make game cards focusable for keyboard navigation
+        document.querySelectorAll('.game-card').forEach(card => {
+            card.setAttribute('tabindex', '0');
+        });
+        
+        // Add hover effect for touch devices
+        if ('ontouchstart' in window) {
+            document.querySelectorAll('.game-card').forEach(card => {
+                card.addEventListener('touchstart', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('touchend', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        }
+        
+        // Add loading animation for games
+        const playButtons = document.querySelectorAll('.play-btn');
+        playButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const gameCard = this.closest('.game-card');
+                const gameName = gameCard.querySelector('h3').textContent;
+                
+                // Add click animation
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+                
+                // Get the game ID from the card's onclick attribute
+                const onclickAttr = gameCard.getAttribute('onclick');
+                if (onclickAttr) {
+                    const gameId = onclickAttr.match(/loadGame\('(.+?)'\)/)[1];
+                    loadGame(gameId);
+                }
+            });
+        });
+        
+        // Add game of the day highlight (random)
+        const gameCards = document.querySelectorAll('.game-card');
+        if (gameCards.length > 0) {
+            const today = new Date().getDate();
+            const gameOfTheDayIndex = today % gameCards.length;
+            const gameOfTheDay = gameCards[gameOfTheDayIndex];
+            
+            // Add special border to game of the day
+            gameOfTheDay.style.borderColor = '#ffcc00';
+            gameOfTheDay.style.boxShadow = '0 10px 30px rgba(255, 204, 0, 0.3)';
+            
+            // Add badge
+            const badge = document.createElement('div');
+            badge.style.position = 'absolute';
+            badge.style.top = '15px';
+            badge.style.left = '15px';
+            badge.style.background = '#ffcc00';
+            badge.style.color = '#0c1a2d';
+            badge.style.padding = '5px 10px';
+            badge.style.borderRadius = '15px';
+            badge.style.fontSize = '0.8rem';
+            badge.style.fontWeight = 'bold';
+            badge.textContent = 'Game of the Day';
+            gameOfTheDay.appendChild(badge);
+        }
+    </script>
+</body>
+</html>

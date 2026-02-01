@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Match-3 Xavier | Xavier Games Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            background: linear-gradient(135deg, #0c1a2d 0%, #1a3a5f 100%);
+            color: #fff;
+        }
+        
+        body {
+            padding: 10px;
+            touch-action: manipulation;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            height: 100%;
+            max-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            width: 100%;
+            padding: 5px;
+            flex-shrink: 0;
+        }
+        
+        .header h1 {
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(255, 126, 95, 0.5);
+        }
+        
+        .header p {
+            font-size: clamp(0.8rem, 3vw, 1rem);
+            color: #a3c4f3;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.3;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(15, 37, 71, 0.95);
+            color: white;
+            border: 2px solid #2a4a7a;
+            padding: 8px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            z-index: 1000;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+            touch-action: manipulation;
+        }
+        
+        .back-btn:active {
+            transform: scale(0.95);
+            background: rgba(15, 37, 71, 1);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            background: rgba(15, 37, 71, 0.95);
+            border-radius: 12px;
+            padding: 10px;
+            border: 2px solid #2a4a7a;
+            flex-shrink: 0;
+            gap: 5px;
+        }
+        
+        .info-box {
+            text-align: center;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .info-box h3 {
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            color: #a3c4f3;
+            margin-bottom: 3px;
+            white-space: nowrap;
+        }
+        
+        .info-value {
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        
+        .info-value.critical {
+            color: #ff5252;
+            animation: pulse 0.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .game-board {
+            width: 100%;
+            flex: 1;
+            min-height: 200px;
+            background: #0f2547;
+            border-radius: 15px;
+            border: 3px solid #2a4a7a;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+            touch-action: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        .control-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+            touch-action: manipulation;
+            min-height: 44px;
+        }
+        
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: #0c1a2d;
+        }
+        
+        .btn-secondary {
+            background: #2a4a7a;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffcc00;
+            color: #0c1a2d;
+        }
+        
+        .tutorial {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .tutorial h3 {
+            font-size: clamp(1.5rem, 6vw, 2.2rem);
+            color: #ff7e5f;
+            margin-bottom: 15px;
+        }
+        
+        .tutorial p {
+            font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+            color: #a3c4f3;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            max-width: 500px;
+        }
+        
+        .tutorial-demo {
+            width: min(300px, 90vw);
+            height: 200px;
+            border-radius: 15px;
+            background: rgba(255, 126, 95, 0.1);
+            border: 3px solid rgba(255, 126, 95, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 40px);
+            grid-template-rows: repeat(5, 40px);
+            gap: 2px;
+        }
+        
+        .demo-tile {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .demo-tile.selected {
+            border: 3px solid #ffcc00;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .game-over h2 {
+            font-size: clamp(2rem, 8vw, 3rem);
+            color: #ff7e5f;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255, 126, 95, 0.7);
+        }
+        
+        .game-over p {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+        
+        .game-over .stats {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .stat-item {
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .stat-value {
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            color: #ffcc00;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            color: #a3c4f3;
+            margin-top: 3px;
+        }
+        
+        .level-complete {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .level-complete h2 {
+            font-size: clamp(2rem, 8vw, 3rem);
+            color: #4CAF50;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.7);
+        }
+        
+        .bonus-points {
+            font-size: clamp(1.2rem, 5vw, 2rem);
+            color: #ffcc00;
+            margin: 15px 0;
+            animation: float 2s infinite;
+        }
+        
+        .powerup-display {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .powerup-icon {
+            width: 35px;
+            height: 35px;
+            background: rgba(255, 204, 0, 0.2);
+            border: 2px solid #ffcc00;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #ffcc00;
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        .powerup-count {
+            position: absolute;
+            bottom: -12px;
+            font-size: 0.8rem;
+            color: #ffcc00;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1px 6px;
+            border-radius: 10px;
+        }
+        
+        /* Game specific styles */
+        #gameCanvas {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .touch-feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: touchRipple 0.5s ease-out;
+        }
+        
+        @keyframes touchRipple {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+        
+        /* Tile colors */
+        .tile-red { background: linear-gradient(135deg, #FF5252, #FF8A80); }
+        .tile-blue { background: linear-gradient(135deg, #2196F3, #64B5F6); }
+        .tile-green { background: linear-gradient(135deg, #4CAF50, #81C784); }
+        .tile-yellow { background: linear-gradient(135deg, #FFD700, #FFEB3B); }
+        .tile-purple { background: linear-gradient(135deg, #9C27B0, #BA68C8); }
+        .tile-orange { background: linear-gradient(135deg, #FF9800, #FFB74D); }
+        
+        /* Landscape mode optimizations */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                height: 100vh;
+            }
+            
+            .header {
+                order: 1;
+                width: 100%;
+                padding: 5px;
+            }
+            
+            .game-info {
+                order: 2;
+                width: 100%;
+            }
+            
+            .game-board {
+                order: 3;
+                height: 60vh;
+                min-height: 250px;
+            }
+            
+            .controls {
+                order: 4;
+                width: 30%;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .header p {
+                display: none;
+            }
+            
+            .back-btn {
+                top: 5px;
+                left: 5px;
+                padding: 5px 10px;
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Portrait mode optimizations */
+        @media (orientation: portrait) and (max-height: 700px) {
+            .control-btn {
+                min-height: 40px;
+                padding: 10px 5px;
+            }
+            
+            .game-info {
+                padding: 8px;
+            }
+            
+            .info-value {
+                font-size: 1.3rem;
+            }
+        }
+        
+        /* Very small screens */
+        @media (max-width: 350px) {
+            .control-btn {
+                font-size: 0.8rem;
+                min-height: 38px;
+            }
+            
+            .info-value {
+                font-size: 1rem;
+            }
+            
+            .info-box h3 {
+                font-size: 0.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.history.back()">
+        <i class="fas fa-arrow-left"></i> Back
+    </button>
+    
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-th-large"></i> Match-3 Xavier</h1>
+            <p>Match colorful X's! Create combos, use crown tiles, beat the score targets.</p>
+            
+            <div class="powerup-display" id="powerupDisplay">
+                <!-- Power-ups will be displayed here -->
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <div class="info-box">
+                <h3>SCORE</h3>
+                <div class="info-value" id="scoreDisplay">0</div>
+            </div>
+            <div class="info-box">
+                <h3>TARGET</h3>
+                <div class="info-value" id="targetDisplay">500</div>
+            </div>
+            <div class="info-box">
+                <h3>MOVES</h3>
+                <div class="info-value" id="movesDisplay">20</div>
+            </div>
+            <div class="info-box">
+                <h3>LEVEL</h3>
+                <div class="info-value" id="levelDisplay">1</div>
+            </div>
+        </div>
+        
+        <div class="game-board">
+            <canvas id="gameCanvas"></canvas>
+            
+            <div class="tutorial" id="tutorialScreen">
+                <h3>Match-3 Tutorial</h3>
+                <div class="tutorial-demo">
+                    <div class="demo-grid">
+                        <div class="demo-tile tile-red">X</div>
+                        <div class="demo-tile tile-blue">X</div>
+                        <div class="demo-tile tile-green">X</div>
+                        <div class="demo-tile tile-blue">X</div>
+                        <div class="demo-tile tile-red">X</div>
+                        
+                        <div class="demo-tile tile-red">X</div>
+                        <div class="demo-tile tile-green selected">X</div>
+                        <div class="demo-tile tile-green selected">X</div>
+                        <div class="demo-tile tile-green selected">X</div>
+                        <div class="demo-tile tile-yellow">X</div>
+                        
+                        <div class="demo-tile tile-purple">X</div>
+                        <div class="demo-tile tile-orange">X</div>
+                        <div class="demo-tile tile-blue">X</div>
+                        <div class="demo-tile tile-red">👑</div>
+                        <div class="demo-tile tile-yellow">X</div>
+                    </div>
+                </div>
+                <p><strong>How to Play:</strong></p>
+                <p>1. <strong>Match:</strong> Drag to swap adjacent tiles</p>
+                <p>2. <strong>Create combos:</strong> Match 4+ for special tiles</p>
+                <p>3. <strong>Crown Tiles:</strong> Clear entire rows/columns</p>
+                <p>4. <strong>Power-ups:</strong> Use special abilities</p>
+                <p>5. <strong>Reach target score before moves run out!</strong></p>
+                <button class="btn-primary control-btn" onclick="startGame()" style="margin-top: 10px;">
+                    <i class="fas fa-play"></i> Start Game
+                </button>
+            </div>
+            
+            <div class="game-over" id="gameOverScreen">
+                <h2>Game Over!</h2>
+                <p id="gameOverMessage">You ran out of moves!</p>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="finalScore">0</div>
+                        <div class="stat-label">Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="finalLevel">1</div>
+                        <div class="stat-label">Level</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="finalMatches">0</div>
+                        <div class="stat-label">Matches</div>
+                    </div>
+                </div>
+                <button class="btn-primary control-btn" onclick="startGame()" style="margin-top: 15px;">
+                    <i class="fas fa-redo"></i> Play Again
+                </button>
+            </div>
+            
+            <div class="level-complete" id="levelCompleteScreen">
+                <h2>Level Complete!</h2>
+                <p>You reached the target score!</p>
+                <div class="bonus-points" id="levelBonus">+500 Bonus Points!</div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="nextLevel">2</div>
+                        <div class="stat-label">Next Level</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="levelScore">0</div>
+                        <div class="stat-label">Level Score</div>
+                    </div>
+                </div>
+                <button class="btn-primary control-btn" onclick="nextLevel()" style="margin-top: 15px;">
+                    <i class="fas fa-arrow-right"></i> Next Level
+                </button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-secondary control-btn" onclick="pauseGame()" id="pauseBtn">
+                <i class="fas fa-pause"></i> Pause
+            </button>
+            <button class="btn-primary control-btn" id="startBtn" onclick="startGame()">
+                <i class="fas fa-play"></i> Start
+            </button>
+            <button class="btn-warning control-btn" onclick="usePowerup('shuffle')" id="shuffleBtn">
+                <i class="fas fa-random"></i> Shuffle (3)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Game Variables
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Game State
+        let gameRunning = false;
+        let gamePaused = false;
+        let score = 0;
+        let level = 1;
+        let moves = 20;
+        let targetScore = 500;
+        let grid = [];
+        let selectedTile = null;
+        let matchedTiles = [];
+        let fallingTiles = [];
+        let gameLoop = null;
+        let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Game Constants
+        const GRID_SIZE = 8;
+        const TILE_SIZE = 40;
+        const TILE_GAP = 2;
+        const TILE_TYPES = 6;
+        const ANIMATION_SPEED = 10;
+        
+        // Power-ups
+        let powerups = {
+            shuffle: 3,
+            bomb: 2,
+            rowClear: 2
+        };
+        
+        // Tile colors
+        const TILE_COLORS = [
+            '#FF5252', // Red
+            '#2196F3', // Blue
+            '#4CAF50', // Green
+            '#FFD700', // Yellow
+            '#9C27B0', // Purple
+            '#FF9800'  // Orange
+        ];
+        
+        // Tile types
+        const TILE_TYPES_DATA = [
+            { symbol: 'X', color: 0, points: 10 },
+            { symbol: 'X', color: 1, points: 10 },
+            { symbol: 'X', color: 2, points: 10 },
+            { symbol: 'X', color: 3, points: 10 },
+            { symbol: 'X', color: 4, points: 10 },
+            { symbol: 'X', color: 5, points: 10 },
+            { symbol: '👑', color: 6, points: 50, special: 'crown' } // Crown tile
+        ];
+        
+        // Initialize Game
+        function initGame() {
+            resizeCanvas();
+            
+            // Show tutorial for first play
+            const hasPlayed = localStorage.getItem('match3_played');
+            if (!hasPlayed) {
+                document.getElementById('tutorialScreen').style.display = 'flex';
+                localStorage.setItem('match3_played', 'true');
+            } else {
+                // Show start button immediately
+                document.getElementById('startBtn').innerHTML = '<i class="fas fa-play"></i> Start';
+            }
+            
+            // Draw initial screen
+            drawGame();
+            
+            // Add touch feedback
+            addTouchFeedback();
+        }
+        
+        // Add touch feedback
+        function addTouchFeedback() {
+            const buttons = document.querySelectorAll('.control-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('touchstart', function(e) {
+                    const touch = e.touches[0];
+                    const rect = this.getBoundingClientRect();
+                    const x = touch.clientX - rect.left;
+                    const y = touch.clientY - rect.top;
+                    
+                    const feedback = document.createElement('div');
+                    feedback.className = 'touch-feedback';
+                    feedback.style.left = x + 'px';
+                    feedback.style.top = y + 'px';
+                    this.appendChild(feedback);
+                    
+                    setTimeout(() => {
+                        if (feedback.parentNode === this) {
+                            this.removeChild(feedback);
+                        }
+                    }, 500);
+                });
+            });
+        }
+        
+        // Resize canvas
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        
+        // Start game
+        function startGame() {
+            if (gameRunning) {
+                // If game is already running, restart
+                gameRunning = false;
+                cancelAnimationFrame(gameLoop);
+            }
+            
+            document.getElementById('tutorialScreen').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('levelCompleteScreen').style.display = 'none';
+            
+            // Reset game state
+            score = 0;
+            level = 1;
+            moves = 20;
+            targetScore = 500;
+            powerups = {
+                shuffle: 3,
+                bomb: 2,
+                rowClear: 2
+            };
+            
+            // Update displays
+            document.getElementById('startBtn').innerHTML = '<i class="fas fa-redo"></i> Restart';
+            updatePowerupDisplay();
+            
+            // Create grid
+            createGrid();
+            
+            gameRunning = true;
+            gamePaused = false;
+            
+            // Start game loop
+            if (gameLoop) cancelAnimationFrame(gameLoop);
+            gameLoop = requestAnimationFrame(updateGame);
+        }
+        
+        // Create grid
+        function createGrid() {
+            grid = [];
+            const startX = (canvas.width - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+            const startY = (canvas.height - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+            
+            for (let row = 0; row < GRID_SIZE; row++) {
+                grid[row] = [];
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    // Create random tile (avoid immediate matches)
+                    let tileType;
+                    do {
+                        tileType = Math.floor(Math.random() * TILE_TYPES);
+                    } while (
+                        (row >= 2 && grid[row-1][col] && grid[row-2][col] && 
+                         grid[row-1][col].color === tileType && grid[row-2][col].color === tileType) ||
+                        (col >= 2 && grid[row][col-1] && grid[row][col-2] && 
+                         grid[row][col-1].color === tileType && grid[row][col-2].color === tileType)
+                    );
+                    
+                    // Small chance for crown tile
+                    const isCrown = Math.random() < 0.05;
+                    
+                    grid[row][col] = {
+                        x: startX + col * (TILE_SIZE + TILE_GAP),
+                        y: startY + row * (TILE_SIZE + TILE_GAP),
+                        width: TILE_SIZE,
+                        height: TILE_SIZE,
+                        color: tileType,
+                        symbol: isCrown ? '👑' : 'X',
+                        points: isCrown ? 50 : 10,
+                        special: isCrown ? 'crown' : null,
+                        row: row,
+                        col: col,
+                        matched: false,
+                        falling: false,
+                        targetY: startY + row * (TILE_SIZE + TILE_GAP)
+                    };
+                }
+            }
+            
+            updateDisplay();
+        }
+        
+        // Update game
+        function updateGame() {
+            if (!gameRunning || gamePaused) {
+                gameLoop = requestAnimationFrame(updateGame);
+                return;
+            }
+            
+            // Clear canvas
+            ctx.fillStyle = '#0f2547';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background pattern
+            drawBackground();
+            
+            // Update falling tiles
+            updateFallingTiles();
+            
+            // Draw grid
+            drawGrid();
+            
+            // Draw selected tile highlight
+            if (selectedTile) {
+                drawSelectedTile();
+            }
+            
+            // Draw score and info
+            drawGameInfo();
+            
+            // Continue game loop
+            gameLoop = requestAnimationFrame(updateGame);
+        }
+        
+        // Draw background pattern
+        function drawBackground() {
+            // Draw subtle pattern
+            ctx.fillStyle = 'rgba(42, 74, 122, 0.1)';
+            for (let i = 0; i < 100; i++) {
+                const x = (i * 23) % canvas.width;
+                const y = (i * 17) % canvas.height;
+                const size = (i % 2) + 1;
+                ctx.fillRect(x, y, size, size);
+            }
+        }
+        
+        // Update falling tiles
+        function updateFallingTiles() {
+            let tilesFalling = false;
+            
+            grid.forEach(row => {
+                row.forEach(tile => {
+                    if (tile.falling && tile.y < tile.targetY) {
+                        tile.y += ANIMATION_SPEED;
+                        tilesFalling = true;
+                    } else if (tile.falling) {
+                        tile.y = tile.targetY;
+                        tile.falling = false;
+                    }
+                });
+            });
+            
+            // If no tiles are falling, check for matches
+            if (!tilesFalling && gameRunning) {
+                checkForMatches();
+            }
+        }
+        
+        // Draw grid
+        function drawGrid() {
+            const startX = (canvas.width - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+            const startY = (canvas.height - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+            
+            // Draw grid background
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(
+                startX - 10,
+                startY - 10,
+                GRID_SIZE * (TILE_SIZE + TILE_GAP) + 20,
+                GRID_SIZE * (TILE_SIZE + TILE_GAP) + 20
+            );
+            
+            // Draw tiles
+            grid.forEach(row => {
+                row.forEach(tile => {
+                    // Draw tile background
+                    ctx.fillStyle = TILE_COLORS[tile.color];
+                    ctx.fillRect(tile.x, tile.y, tile.width, tile.height);
+                    
+                    // Draw tile border
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(tile.x, tile.y, tile.width, tile.height);
+                    
+                    // Draw tile shadow
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                    ctx.shadowBlur = 5;
+                    ctx.shadowOffsetX = 2;
+                    ctx.shadowOffsetY = 2;
+                    
+                    // Draw tile symbol
+                    ctx.fillStyle = 'white';
+                    ctx.font = tile.symbol === '👑' ? 'bold 24px Arial' : 'bold 20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(
+                        tile.symbol,
+                        tile.x + tile.width/2,
+                        tile.y + tile.height/2
+                    );
+                    
+                    // Reset shadow
+                    ctx.shadowColor = 'transparent';
+                    ctx.shadowBlur = 0;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 0;
+                    
+                    // Draw highlight if matched
+                    if (tile.matched) {
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                        ctx.fillRect(tile.x, tile.y, tile.width, tile.height);
+                    }
+                });
+            });
+        }
+        
+        // Draw selected tile highlight
+        function drawSelectedTile() {
+            const tile = selectedTile;
+            ctx.strokeStyle = '#ffcc00';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(tile.x - 2, tile.y - 2, tile.width + 4, tile.height + 4);
+            
+            // Draw glow effect
+            ctx.shadowColor = '#ffcc00';
+            ctx.shadowBlur = 15;
+            ctx.strokeRect(tile.x - 2, tile.y - 2, tile.width + 4, tile.height + 4);
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+        
+        // Draw game info
+        function drawGameInfo() {
+            // Draw level info
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Level ${level}`, 20, 30);
+            
+            // Draw progress bar
+            const progress = Math.min(score / targetScore, 1);
+            const barWidth = canvas.width - 40;
+            const barHeight = 10;
+            const barX = 20;
+            const barY = 50;
+            
+            // Background
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(barX, barY, barWidth, barHeight);
+            
+            // Progress
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(barX, barY, barWidth * progress, barHeight);
+            
+            // Border
+            ctx.strokeStyle = '#2a4a7a';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(barX, barY, barWidth, barHeight);
+            
+            // Progress text
+            ctx.fillStyle = 'white';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(
+                `${score}/${targetScore}`,
+                barX + barWidth/2,
+                barY - 5
+            );
+        }
+        
+        // Handle tile selection
+        canvas.addEventListener('mousedown', handleTileSelect);
+        canvas.addEventListener('touchstart', handleTileSelect);
+        
+        function handleTileSelect(e) {
+            if (!gameRunning || gamePaused) return;
+            
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            
+            // Find clicked tile
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    const tile = grid[row][col];
+                    if (x >= tile.x && x <= tile.x + tile.width &&
+                        y >= tile.y && y <= tile.y + tile.height) {
+                        
+                        if (!selectedTile) {
+                            // First tile selected
+                            selectedTile = tile;
+                        } else if (selectedTile === tile) {
+                            // Deselect tile
+                            selectedTile = null;
+                        } else {
+                            // Check if tiles are adjacent
+                            const rowDiff = Math.abs(selectedTile.row - tile.row);
+                            const colDiff = Math.abs(selectedTile.col - tile.col);
+                            
+                            if ((rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1)) {
+                                // Swap tiles
+                                swapTiles(selectedTile, tile);
+                                selectedTile = null;
+                            } else {
+                                // Select new tile
+                                selectedTile = tile;
+                            }
+                        }
+                        return;
+                    }
+                }
+            }
+            
+            // Clicked outside tiles, deselect
+            selectedTile = null;
+        }
+        
+        // Swap tiles
+        function swapTiles(tile1, tile2) {
+            // Swap grid positions
+            [grid[tile1.row][tile1.col], grid[tile2.row][tile2.col]] = 
+            [grid[tile2.row][tile2.col], grid[tile1.row][tile1.col]];
+            
+            // Swap row and col values
+            const tempRow = tile1.row;
+            const tempCol = tile1.col;
+            tile1.row = tile2.row;
+            tile1.col = tile2.col;
+            tile2.row = tempRow;
+            tile2.col = tempCol;
+            
+            // Update positions
+            const startX = (canvas.width - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+            const startY = (canvas.height - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+            
+            tile1.targetY = startY + tile1.row * (TILE_SIZE + TILE_GAP);
+            tile2.targetY = startY + tile2.row * (TILE_SIZE + TILE_GAP);
+            
+            tile1.falling = true;
+            tile2.falling = true;
+            
+            // Use a move
+            moves--;
+            updateDisplay();
+            
+            // Check if moves are exhausted
+            if (moves <= 0) {
+                setTimeout(() => {
+                    gameOver();
+                }, 500);
+            }
+        }
+        
+        // Check for matches
+        function checkForMatches() {
+            let foundMatches = false;
+            
+            // Clear previous matches
+            grid.forEach(row => {
+                row.forEach(tile => {
+                    tile.matched = false;
+                });
+            });
+            
+            // Check horizontal matches
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE - 2; col++) {
+                    const tile1 = grid[row][col];
+                    const tile2 = grid[row][col + 1];
+                    const tile3 = grid[row][col + 2];
+                    
+                    if (tile1.color === tile2.color && tile2.color === tile3.color) {
+                        // Found a match of 3
+                        let matchLength = 3;
+                        while (col + matchLength < GRID_SIZE && 
+                               grid[row][col + matchLength].color === tile1.color) {
+                            matchLength++;
+                        }
+                        
+                        // Mark all matched tiles
+                        for (let i = 0; i < matchLength; i++) {
+                            grid[row][col + i].matched = true;
+                        }
+                        
+                        // Handle crown tiles
+                        for (let i = 0; i < matchLength; i++) {
+                            const tile = grid[row][col + i];
+                            if (tile.special === 'crown') {
+                                // Crown tile - clear entire row
+                                for (let c = 0; c < GRID_SIZE; c++) {
+                                    grid[row][c].matched = true;
+                                }
+                            }
+                        }
+                        
+                        foundMatches = true;
+                        col += matchLength - 1;
+                    }
+                }
+            }
+            
+            // Check vertical matches
+            for (let col = 0; col < GRID_SIZE; col++) {
+                for (let row = 0; row < GRID_SIZE - 2; row++) {
+                    const tile1 = grid[row][col];
+                    const tile2 = grid[row + 1][col];
+                    const tile3 = grid[row + 2][col];
+                    
+                    if (tile1.color === tile2.color && tile2.color === tile3.color) {
+                        // Found a match of 3
+                        let matchLength = 3;
+                        while (row + matchLength < GRID_SIZE && 
+                               grid[row + matchLength][col].color === tile1.color) {
+                            matchLength++;
+                        }
+                        
+                        // Mark all matched tiles
+                        for (let i = 0; i < matchLength; i++) {
+                            grid[row + i][col].matched = true;
+                        }
+                        
+                        // Handle crown tiles
+                        for (let i = 0; i < matchLength; i++) {
+                            const tile = grid[row + i][col];
+                            if (tile.special === 'crown') {
+                                // Crown tile - clear entire column
+                                for (let r = 0; r < GRID_SIZE; r++) {
+                                    grid[r][col].matched = true;
+                                }
+                            }
+                        }
+                        
+                        foundMatches = true;
+                        row += matchLength - 1;
+                    }
+                }
+            }
+            
+            // Process matches if found
+            if (foundMatches) {
+                processMatches();
+            } else {
+                // No matches, check if valid moves exist
+                checkValidMoves();
+            }
+        }
+        
+        // Process matched tiles
+        function processMatches() {
+            let totalPoints = 0;
+            let matchCount = 0;
+            
+            // Calculate score and remove matched tiles
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    const tile = grid[row][col];
+                    if (tile.matched) {
+                        totalPoints += tile.points;
+                        matchCount++;
+                        
+                        // Create new tile at top
+                        const startX = (canvas.width - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+                        const startY = (canvas.height - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+                        
+                        // Small chance for crown tile (higher on higher levels)
+                        const crownChance = 0.03 + (level * 0.01);
+                        const isCrown = Math.random() < crownChance;
+                        
+                        grid[row][col] = {
+                            x: startX + col * (TILE_SIZE + TILE_GAP),
+                            y: startY - TILE_SIZE, // Start above grid
+                            width: TILE_SIZE,
+                            height: TILE_SIZE,
+                            color: Math.floor(Math.random() * TILE_TYPES),
+                            symbol: isCrown ? '👑' : 'X',
+                            points: isCrown ? 50 : 10,
+                            special: isCrown ? 'crown' : null,
+                            row: row,
+                            col: col,
+                            matched: false,
+                            falling: true,
+                            targetY: startY + row * (TILE_SIZE + TILE_GAP)
+                        };
+                    }
+                }
+            }
+            
+            // Add score with multiplier for multiple matches
+            const multiplier = 1 + (matchCount / 10);
+            score += Math.floor(totalPoints * multiplier);
+            updateDisplay();
+            
+            // Check if target reached
+            if (score >= targetScore) {
+                setTimeout(() => {
+                    completeLevel();
+                }, 500);
+            }
+        }
+        
+        // Check for valid moves
+        function checkValidMoves() {
+            let validMoveExists = false;
+            
+            // Check all possible swaps
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    // Check swap right
+                    if (col < GRID_SIZE - 1) {
+                        // Swap tiles
+                        [grid[row][col], grid[row][col + 1]] = 
+                        [grid[row][col + 1], grid[row][col]];
+                        
+                        // Check for matches
+                        if (checkPotentialMatches()) {
+                            validMoveExists = true;
+                        }
+                        
+                        // Swap back
+                        [grid[row][col], grid[row][col + 1]] = 
+                        [grid[row][col + 1], grid[row][col]];
+                        
+                        if (validMoveExists) break;
+                    }
+                    
+                    // Check swap down
+                    if (row < GRID_SIZE - 1) {
+                        // Swap tiles
+                        [grid[row][col], grid[row + 1][col]] = 
+                        [grid[row + 1][col], grid[row][col]];
+                        
+                        // Check for matches
+                        if (checkPotentialMatches()) {
+                            validMoveExists = true;
+                        }
+                        
+                        // Swap back
+                        [grid[row][col], grid[row + 1][col]] = 
+                        [grid[row + 1][col], grid[row][col]];
+                        
+                        if (validMoveExists) break;
+                    }
+                }
+                if (validMoveExists) break;
+            }
+            
+            if (!validMoveExists) {
+                // No valid moves, shuffle the board
+                shuffleBoard();
+            }
+        }
+        
+        // Check potential matches (for valid move checking)
+        function checkPotentialMatches() {
+            // Check horizontal matches
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE - 2; col++) {
+                    if (grid[row][col].color === grid[row][col + 1].color &&
+                        grid[row][col + 1].color === grid[row][col + 2].color) {
+                        return true;
+                    }
+                }
+            }
+            
+            // Check vertical matches
+            for (let col = 0; col < GRID_SIZE; col++) {
+                for (let row = 0; row < GRID_SIZE - 2; row++) {
+                    if (grid[row][col].color === grid[row + 1][col].color &&
+                        grid[row + 1][col].color === grid[row + 2][col].color) {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        // Shuffle board
+        function shuffleBoard() {
+            const startX = (canvas.width - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+            const startY = (canvas.height - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+            
+            // Create a flat array of tiles
+            const tiles = [];
+            grid.forEach(row => {
+                row.forEach(tile => {
+                    tiles.push(tile);
+                });
+            });
+            
+            // Shuffle tiles
+            for (let i = tiles.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [tiles[i].color, tiles[j].color] = [tiles[j].color, tiles[i].color];
+                [tiles[i].symbol, tiles[j].symbol] = [tiles[j].symbol, tiles[i].symbol];
+                [tiles[i].special, tiles[j].special] = [tiles[j].special, tiles[i].special];
+                [tiles[i].points, tiles[j].points] = [tiles[j].points, tiles[i].points];
+                
+                // Update positions
+                tiles[i].targetY = startY + tiles[i].row * (TILE_SIZE + TILE_GAP);
+                tiles[j].targetY = startY + tiles[j].row * (TILE_SIZE + TILE_GAP);
+                
+                tiles[i].falling = true;
+                tiles[j].falling = true;
+            }
+        }
+        
+        // Use power-up
+        function usePowerup(type) {
+            if (!gameRunning || gamePaused) return;
+            
+            if (powerups[type] > 0) {
+                powerups[type]--;
+                updatePowerupDisplay();
+                
+                switch(type) {
+                    case 'shuffle':
+                        shuffleBoard();
+                        break;
+                    case 'bomb':
+                        useBombPowerup();
+                        break;
+                    case 'rowClear':
+                        useRowClearPowerup();
+                        break;
+                }
+            }
+        }
+        
+        // Bomb power-up
+        function useBombPowerup() {
+            if (!selectedTile) return;
+            
+            const tile = selectedTile;
+            const startX = (canvas.width - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+            const startY = (canvas.height - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+            
+            // Clear 3x3 area around selected tile
+            for (let r = Math.max(0, tile.row - 1); r <= Math.min(GRID_SIZE - 1, tile.row + 1); r++) {
+                for (let c = Math.max(0, tile.col - 1); c <= Math.min(GRID_SIZE - 1, tile.col + 1); c++) {
+                    grid[r][c].matched = true;
+                }
+            }
+            
+            processMatches();
+            selectedTile = null;
+        }
+        
+        // Row clear power-up
+        function useRowClearPowerup() {
+            if (!selectedTile) return;
+            
+            const tile = selectedTile;
+            const startX = (canvas.width - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+            const startY = (canvas.height - (GRID_SIZE * (TILE_SIZE + TILE_GAP))) / 2;
+            
+            // Clear entire row and column
+            for (let i = 0; i < GRID_SIZE; i++) {
+                grid[tile.row][i].matched = true;
+                grid[i][tile.col].matched = true;
+            }
+            
+            processMatches();
+            selectedTile = null;
+        }
+        
+        // Update power-up display
+        function updatePowerupDisplay() {
+            const display = document.getElementById('powerupDisplay');
+            display.innerHTML = '';
+            
+            // Update shuffle button
+            document.getElementById('shuffleBtn').innerHTML = `<i class="fas fa-random"></i> Shuffle (${powerups.shuffle})`;
+            
+            // Create power-up icons
+            for (const type in powerups) {
+                const count = powerups[type];
+                let icon = '';
+                let color = '';
+                
+                switch(type) {
+                    case 'shuffle':
+                        icon = '🔄';
+                        color = '#FF5252';
+                        break;
+                    case 'bomb':
+                        icon = '💣';
+                        color = '#9C27B0';
+                        break;
+                    case 'rowClear':
+                        icon = '🌀';
+                        color = '#2196F3';
+                        break;
+                }
+                
+                const powerupElement = document.createElement('div');
+                powerupElement.className = 'powerup-icon';
+                powerupElement.innerHTML = `
+                    ${icon}
+                    <div class="powerup-count">${count}</div>
+                `;
+                powerupElement.title = type.charAt(0).toUpperCase() + type.slice(1);
+                powerupElement.style.borderColor = color;
+                powerupElement.style.background = color + '20';
+                powerupElement.onclick = () => usePowerup(type);
+                display.appendChild(powerupElement);
+            }
+        }
+        
+        // Complete level
+        function completeLevel() {
+            gameRunning = false;
+            cancelAnimationFrame(gameLoop);
+            
+            // Calculate level bonus
+            const movesBonus = moves * 10;
+            const levelBonus = 500 * level;
+            const totalBonus = movesBonus + levelBonus;
+            score += totalBonus;
+            
+            // Show level complete screen
+            document.getElementById('nextLevel').textContent = level + 1;
+            document.getElementById('levelScore').textContent = totalBonus;
+            document.getElementById('levelBonus').textContent = `+${totalBonus} Bonus Points!`;
+            document.getElementById('levelCompleteScreen').style.display = 'flex';
+            
+            updateDisplay();
+            saveGameStats();
+        }
+        
+        // Next level
+        function nextLevel() {
+            level++;
+            
+            // Increase difficulty
+            moves = 15 + Math.floor(level * 1.5);
+            targetScore = 500 + (level - 1) * 200;
+            
+            // Add power-ups for higher levels
+            if (level % 3 === 0) {
+                powerups.shuffle++;
+            }
+            if (level % 5 === 0) {
+                powerups.bomb++;
+                powerups.rowClear++;
+            }
+            
+            document.getElementById('levelCompleteScreen').style.display = 'none';
+            
+            // Create new grid
+            createGrid();
+            
+            gameRunning = true;
+            gameLoop = requestAnimationFrame(updateGame);
+        }
+        
+        // Game over
+        function gameOver() {
+            gameRunning = false;
+            gamePaused = false;
+            cancelAnimationFrame(gameLoop);
+            
+            const matches = Math.floor(score / 10); // Approximate match count
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalLevel').textContent = level;
+            document.getElementById('finalMatches').textContent = matches;
+            
+            let message = "You ran out of moves!";
+            if (score >= targetScore * 0.8) {
+                message = "So close! Try again!";
+            }
+            
+            document.getElementById('gameOverMessage').textContent = message;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+            
+            saveGameStats();
+        }
+        
+        // Pause game
+        function pauseGame() {
+            if (!gameRunning) return;
+            
+            gamePaused = !gamePaused;
+            
+            const btn = document.getElementById('pauseBtn');
+            if (gamePaused) {
+                btn.innerHTML = '<i class="fas fa-play"></i> Resume';
+            } else {
+                btn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            }
+        }
+        
+        // Update display
+        function updateDisplay() {
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('targetDisplay').textContent = targetScore;
+            document.getElementById('movesDisplay').textContent = moves;
+            document.getElementById('levelDisplay').textContent = level;
+            
+            // Flash moves when critical
+            if (moves <= 5) {
+                document.getElementById('movesDisplay').classList.add('critical');
+            } else {
+                document.getElementById('movesDisplay').classList.remove('critical');
+            }
+        }
+        
+        // Save game stats
+        function saveGameStats() {
+            const currentHighScore = localStorage.getItem('match3_high_score') || 0;
+            const currentHighLevel = localStorage.getItem('match3_high_level') || 0;
+            
+            if (score > currentHighScore) {
+                localStorage.setItem('match3_high_score', score);
+            }
+            if (level > currentHighLevel) {
+                localStorage.setItem('match3_high_level', level);
+            }
+            
+            // Update total plays and score
+            const plays = parseInt(localStorage.getItem('match3_plays') || 0) + 1;
+            const totalScore = parseInt(localStorage.getItem('match3_total_score') || 0) + score;
+            
+            localStorage.setItem('match3_plays', plays);
+            localStorage.setItem('match3_total_score', totalScore);
+        }
+        
+        // Draw game (initial and paused)
+        function drawGame() {
+            ctx.fillStyle = '#0f2547';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            drawBackground();
+            
+            // Draw title when not playing
+            if (!gameRunning) {
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = 'bold 24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('MATCH-3 XAVIER', canvas.width/2, canvas.height/2 - 30);
+                ctx.font = '16px Arial';
+                ctx.fillText('Drag tiles to match three or more!', canvas.width/2, canvas.height/2 + 20);
+            }
+        }
+        
+        // Window resize handling
+        window.addEventListener('resize', function() {
+            resizeCanvas();
+            if (!gameRunning) {
+                drawGame();
+            }
+        });
+        
+        // Prevent context menu on long press
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.tagName === 'CANVAS') {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Prevent pull-to-refresh on mobile
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.tagName === 'CANVAS') {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        // Initialize game on load
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
