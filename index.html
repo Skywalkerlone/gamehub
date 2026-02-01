@@ -66,7 +66,10 @@
             max-width: 600px;
             margin: 0 auto 30px;
         }
-        
+         .back-btn a{
+            color: #a3c4f3;
+              text-decoration: none;
+        }
         .stat-item {
             text-align: center;
         }
@@ -700,7 +703,7 @@
             updateStats();
             
             // Show coming soon for games not yet implemented
-            const implementedGames = ['snake', 'invaders', 'maze' , 'match3', 'flappy' ,'memory', 'game2048', 'platform','wordsearch', 'tetris','dino', 'pacman','whackamole', 'towerdefense'];
+            const implementedGames = ['snake', 'invaders', 'maze' , 'match3', 'flappy' ,'memory', 'game2048', 'platform','wordsearch','brick', 'tetris','dino', 'pacman','whackamole', 'towerdefense'];
             if (!implementedGames.includes(gameName)) {
                 alert(`🎮 ${gameName.charAt(0).toUpperCase() + gameName.slice(1)} is coming soon!\n\nThis game is still in development. Check back later!`);
                 return;

@@ -65,6 +65,7 @@
         .back-btn {
             position: absolute;
             top: 20px;
+            text-decoration: none;
             left: 20px;
             background: rgba(15, 37, 71, 0.9);
             color: white;
@@ -78,7 +79,10 @@
             font-weight: bold;
             z-index: 100;
         }
-        
+        .back-btn a{
+            color: #a3c4f3;
+              text-decoration: none;
+        }
         .back-btn:active {
             transform: scale(0.95);
         }
@@ -754,8 +758,8 @@
     </style>
 </head>
 <body>
-    <button class="back-btn" onclick="window.history.back()">
-        <i class="fas fa-arrow-left"></i> Back to Hub
+     <button class="back-btn" onclick="window.history.back()">
+        <i class="fas fa-arrow-left"></i> <a href="index.html">Back to Hub</a>
     </button>
     
     <div class="container">
